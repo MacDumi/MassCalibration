@@ -92,7 +92,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 
 	def ReadConfig(self):
 		config = configparser.ConfigParser()
-		config.read('config.ini')
+		config.read('config/config.ini')
 		self.h=int(config['DEFAULT']['header'])
 		self.initialDir=config['DEFAULT']['path']
 		self.yCol=int(config['DEFAULT']['y'])
