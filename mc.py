@@ -325,6 +325,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 					self.tableWidget.setItem(rowPosition , 1, QTableWidgetItem(temp[i,2]))
 					self.tableWidget.setItem(rowPosition , 2, QTableWidgetItem(temp[i,3]))
 					self.tableWidget.setItem(rowPosition , 3, QTableWidgetItem("--"))
+				self.relocatePeaks()
 				self.plotPeaks()
 			except IOError:
 				self.showWarning('Error', 'Could not read the file')
@@ -644,13 +645,15 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 
 		self.min = data.min
 		self.max = data.max
-		width=20
+		width=70
 		Xpos = x
 		error = 0
 		if Gfit:
 			try:
 				ind=(np.abs(data.X-Xpos)).argmin()
-				Xpos = peakutils.gaussian_fit(data.X[ind-width: ind+width], data.Y[ind-width:ind+width], center_only=True )
+				#Xpos = peakutils.gaussian_fit(data.X[ind-width: ind+width], data.Y[ind-width:ind+width], center_only=True )
+				dt=data.Y[ind-width: ind+width]
+				Xpos = max(data.X[ind-width+peakutils.indexes(dt,thres = 0.02/max(dt), min_dist =100)])
 				print("New pos ", Xpos)
 			except RuntimeError:
 				print("Failed to fit a gaussian")
