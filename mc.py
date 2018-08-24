@@ -642,18 +642,20 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 
 
 	def findPeak(self, data, x, Gfit ):
-
+		print('Gfit = ', Gfit)
 		self.min = data.min
 		self.max = data.max
 		width=70
 		Xpos = x
+		ind=(np.abs(data.X-Xpos)).argmin()
+		Ypos = data.Y[ind]
 		error = 0
 		if Gfit:
 			try:
-				ind=(np.abs(data.X-Xpos)).argmin()
 				#Xpos = peakutils.gaussian_fit(data.X[ind-width: ind+width], data.Y[ind-width:ind+width], center_only=True )
 				dt=data.Y[ind-width: ind+width]
-				Xpos = max(data.X[ind-width+peakutils.indexes(dt,thres = 0.02/max(dt), min_dist =100)])
+				Ypos = max(data.Y[ind-width+peakutils.indexes(dt,thres = 0.02/max(dt), min_dist =100)])
+				Xpos = data.X[data.Y ==Ypos][0]
 				print("New pos ", Xpos)
 			except RuntimeError:
 				print("Failed to fit a gaussian")
@@ -662,7 +664,6 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 			#self.subplot.lines.remove(self.cursor)
 		self.dwTime = tm.time()
 		#self.cursor, = self.subplot.plot([Xpos, Xpos], [self.min, self.max], 'r', gid = self.dwTime)
-		Ypos = self.data.Y[np.argwhere(self.data.X>Xpos)[0]][0]
 		return Xpos, Ypos, error
 
 #right click on the plot
