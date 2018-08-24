@@ -13,6 +13,7 @@ import numpy as np
 import random
 import ntpath
 import main
+import logging
 from imports.zoom import *
 from imports.molmass import *
 from imports.dialogs import *
@@ -23,6 +24,8 @@ import configparser
 from imports.readTrc import readTrc
 import time as tm
 import math as mt
+
+logging.basicConfig(level = logging.DEBUG, format = ' %(asctime)s - %(levelname)s - %(message)s')
 
 class MassCalibration (QMainWindow, main.Ui_MainWindow):
 
@@ -46,6 +49,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 		self.btCalibrate.clicked.connect(self.Calibrate)
 		self.actionQuit.triggered.connect(self.close)
 		self.figure = plt.figure()
+		self.subplot = self.figure.add_subplot(111) #add a subfigure
 		self.canvas = FigureCanvas(self.figure)
 		self.canvas.setFocusPolicy(Qt.ClickFocus )
 		self.canvas.setFocus()
@@ -87,7 +91,10 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 		self.dwTime = -1
 		self.scale = 1.5
 		self.zp = ZoomPan()
-		matplotlib.rcParams.update({'font.size': int(self.config['DEFAULT']['fontSize'])})
+		figZoom = self.zp.zoom_factory(self.subplot, base_scale = self.scale)
+		figPan = self.zp.pan_factory(self.subplot)
+		self.fontSize = int(self.config['DEFAULT']['fontSize'])
+		matplotlib.rcParams.update({'font.size': self.fontSize})
 		self.New()
 
 	def ReadConfig(self):
@@ -198,8 +205,8 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 		self.figure_1.clf()	#clear the figure
 		self.subplot_1 = self.figure_1.add_subplot(111) #add a subfigure
 		self.subplot_1.plot(x, y)
-		self.subplot_1.set_xlabel('time of flight, ms') #uncalibrated data
-		self.subplot_1.set_ylabel('Intensity, mV')
+		self.subplot_1.set_xlabel('time of flight, ms', fontsize = self.fontSize) #uncalibrated data
+		self.subplot_1.set_ylabel('Intensity, mV', fontsize = self.fontSize)
 		self.subplot_1.set_xlim([x[0], x[-1]]) #X axis limits
 		self.subplot_1.set_ylim([min(y), 1.1*max(y)])
 		self.figure_1.subplots_adjust(left=0.085, bottom=0.08, top=0.955, right=0.995) #reduce margins
@@ -237,8 +244,8 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 		self.figure_1.clf()	#clear the figure
 		self.subplot_1 = self.figure_1.add_subplot(111) #add a subfigure
 		self.subplot_1.scatter(self.decay[:,0], self.decay[:,1])
-		self.subplot_1.set_xlabel('nr of shots')
-		self.subplot_1.set_ylabel('Intensity, V s')
+		self.subplot_1.set_xlabel('nr of shots', fontsize = self.fontSize)
+		self.subplot_1.set_ylabel('Intensity, V s', fontsize = self.fontSize)
 		self.subplot_1.set_ylim(ymin=0)
 		self.subplot_1.set_title('Decay curve')
 		self.progressBar.setValue(0)
@@ -488,9 +495,9 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 
 #Plot the data
 	def Plot(self):
-		self.figure.clf()	#clear the figure
-		self.subplot = self.figure.add_subplot(111) #add a subfigure
-
+		#self.figure.clf()	#clear the figure
+		#self.subplot = self.figure.add_subplot(111) #add a subfigure
+		self.subplot.clear()
 		if self.Calibration.calibrated:
 			if self.inversed:	#plot the inversed data
 				self.subplot.plot(self.data.M , self.data.max-self.data.Y[self.data.zero:])
@@ -500,8 +507,8 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 				self.subplot.set_ylim([self.data.min, 1.1 * self.data.max])
 
 			self.subplot.set_xlim([self.data.M[0],500])#self.data.M[-1]]) #X axis limits
-			self.subplot.set_ylabel('Intensity')
-			self.subplot.set_xlabel('m/z') #calibrated data
+			self.subplot.set_ylabel('Intensity', fontsize = self.fontSize)
+			self.subplot.set_xlabel('m/z', fontsize = self.fontSize) #calibrated data
 
 		else:
 			if self.inversed:	#plot the inversed data
@@ -511,10 +518,8 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 				self.subplot.plot(self.data.X , self.data.Y)
 				self.subplot.set_ylim([self.data.min, 1.1 * self.data.max])
 			self.subplot.set_xlim([self.data.X[0],self.data.X[self.data.len-1]]) #X axis limits
-			self.subplot.set_ylabel('Intensity')
-			self.subplot.set_xlabel('time of flight') #uncalibrated data
-		figZoom = self.zp.zoom_factory(self.subplot, base_scale = self.scale)
-		figPan = self.zp.pan_factory(self.subplot)
+			self.subplot.set_ylabel('Intensity', fontsize = self.fontSize)
+			self.subplot.set_xlabel('time of flight', fontsize = self.fontSize) #uncalibrated data
 		self.scatter = 0
 		self.plotPeaks()
 		self.canvas.draw() #draw everything to the screen
@@ -656,7 +661,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 				dt=data.Y[ind-width: ind+width]
 				Ypos = max(data.Y[ind-width+peakutils.indexes(dt,thres = 0.02/max(dt), min_dist =100)])
 				Xpos = data.X[data.Y ==Ypos][0]
-				print("New pos ", Xpos)
+				logging.info("New pos %f" % Xpos)
 			except RuntimeError:
 				print("Failed to fit a gaussian")
 				error = 1
