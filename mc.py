@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import sys
+import sys, os, subprocess
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import glob
@@ -35,7 +35,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 		self.setupUi(self)
 		self.actionNew.triggered.connect(self.New)
 		self.actionAbout.triggered.connect(self.about)
-		self.actionPreferences.triggered.connect(self.SaveDiag)
+		self.actionInstructions.triggered.connect(self.Instruction)
 		self.actionLoadProfile.triggered.connect(self.loadCal)
 		self.actionSave_profile.triggered.connect(self.saveCal)
 		self.actionSave.triggered.connect(self.Save)
@@ -493,6 +493,15 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 		msg.setStandardButtons(QMessageBox.Ok)
 		msg.exec_()
 
+	def Instruction(self):
+		filepath = 'README.md'
+		if sys.platform.startswith('darwin'):
+			subprocess.call(('open', filepath))
+		elif os.name == 'nt': # For Windows
+			os.startfile(filepath)
+		elif os.name == 'posix': # For Linux, Mac, etc.
+			subprocess.call(('xdg-open', filepath))
+
 #Plot the data
 	def Plot(self):
 		#self.figure.clf()	#clear the figure
@@ -525,19 +534,6 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 		self.canvas.draw() #draw everything to the screen
 		self.figure.tight_layout()
 
-#button #1 was pressed
-	def b1(self):
-		self.p1 = True
-
-		print('#1')
-
-#button #2 was pressed
-	def b2(self):
-		self.p1 = False
-		self.p2 = True
-		#self.label_0.setStyleSheet('color: gray')
-		#self.label_1.setStyleSheet('color: white')
-		print('#2')
 
 	def plotPeaks(self):
 		self.removeScatter()

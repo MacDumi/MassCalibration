@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'design.ui'
+# Form implementation generated from reading ui file 'main.ui'
 #
 # Created by: PyQt4 UI code generator 4.12.1
 #
@@ -240,7 +240,6 @@ class Ui_MainWindow(object):
         self.menuEdit.addAction(self.menuLoad_calibration.menuAction())
         self.menuEdit.addAction(self.actionUncalibrate)
         self.menuEdit.addSeparator()
-        self.menuEdit.addAction(self.actionPreferences)
         self.menuEdit.addAction(self.actionRm_baseline)
         self.menuEdit.addAction(self.actionCrop)
         self.menuHelp.addAction(self.actionInstructions)

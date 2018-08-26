@@ -355,7 +355,6 @@
     <addaction name="menuLoad_calibration"/>
     <addaction name="actionUncalibrate"/>
     <addaction name="separator"/>
-    <addaction name="actionPreferences"/>
     <addaction name="actionRm_baseline"/>
     <addaction name="actionCrop"/>
    </widget>
