@@ -3,7 +3,7 @@ This software is designed to calibrate a time of flight mass spectrum and retrie
 
 ******************************************
 Dependencies:
-Pyqt4
+Pyqt5
 matplotlib
 numpy
 pandas
