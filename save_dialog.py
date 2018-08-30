@@ -2,79 +2,67 @@
 
 # Form implementation generated from reading ui file 'save_dialog.ui'
 #
-# Created by: PyQt4 UI code generator 4.12.1
+# Created by: PyQt5 UI code generator 5.11.2
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt4 import QtCore, QtGui
-
-try:
-    _fromUtf8 = QtCore.QString.fromUtf8
-except AttributeError:
-    def _fromUtf8(s):
-        return s
-
-try:
-    _encoding = QtGui.QApplication.UnicodeUTF8
-    def _translate(context, text, disambig):
-        return QtGui.QApplication.translate(context, text, disambig, _encoding)
-except AttributeError:
-    def _translate(context, text, disambig):
-        return QtGui.QApplication.translate(context, text, disambig)
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
-        Dialog.setObjectName(_fromUtf8("Dialog"))
+        Dialog.setObjectName("Dialog")
         Dialog.resize(352, 132)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8("icon.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Dialog.setWindowIcon(icon)
-        self.buttonBox = QtGui.QDialogButtonBox(Dialog)
+        self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setGeometry(QtCore.QRect(-70, 90, 341, 32))
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
-        self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
-        self.label_2 = QtGui.QLabel(Dialog)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox.setObjectName("buttonBox")
+        self.label_2 = QtWidgets.QLabel(Dialog)
         self.label_2.setGeometry(QtCore.QRect(172, 10, 40, 32))
-        self.label_2.setObjectName(_fromUtf8("label_2"))
-        self.lineEdit = QtGui.QLineEdit(Dialog)
+        self.label_2.setObjectName("label_2")
+        self.lineEdit = QtWidgets.QLineEdit(Dialog)
         self.lineEdit.setGeometry(QtCore.QRect(218, 10, 120, 32))
         self.lineEdit.setMinimumSize(QtCore.QSize(40, 0))
-        self.lineEdit.setWhatsThis(_fromUtf8(""))
-        self.lineEdit.setAccessibleDescription(_fromUtf8(""))
-        self.lineEdit.setInputMask(_fromUtf8(""))
-        self.lineEdit.setText(_fromUtf8(""))
-        self.lineEdit.setPlaceholderText(_fromUtf8(""))
-        self.lineEdit.setObjectName(_fromUtf8("lineEdit"))
-        self.comboBox = QtGui.QComboBox(Dialog)
+        self.lineEdit.setWhatsThis("")
+        self.lineEdit.setAccessibleDescription("")
+        self.lineEdit.setInputMask("")
+        self.lineEdit.setText("")
+        self.lineEdit.setPlaceholderText("")
+        self.lineEdit.setClearButtonEnabled(False)
+        self.lineEdit.setObjectName("lineEdit")
+        self.comboBox = QtWidgets.QComboBox(Dialog)
         self.comboBox.setGeometry(QtCore.QRect(86, 10, 80, 32))
         self.comboBox.setMinimumSize(QtCore.QSize(80, 0))
-        self.comboBox.setObjectName(_fromUtf8("comboBox"))
-        self.comboBox.addItem(_fromUtf8(""))
-        self.comboBox.addItem(_fromUtf8(""))
-        self.comboBox.addItem(_fromUtf8(""))
-        self.comboBox.addItem(_fromUtf8(""))
-        self.comboBox.addItem(_fromUtf8(""))
-        self.label = QtGui.QLabel(Dialog)
+        self.comboBox.setObjectName("comboBox")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.label = QtWidgets.QLabel(Dialog)
         self.label.setGeometry(QtCore.QRect(20, 10, 60, 32))
-        self.label.setObjectName(_fromUtf8("label"))
-        self.checkBox = QtGui.QCheckBox(Dialog)
+        self.label.setObjectName("label")
+        self.checkBox = QtWidgets.QCheckBox(Dialog)
         self.checkBox.setGeometry(QtCore.QRect(20, 60, 271, 22))
-        self.checkBox.setObjectName(_fromUtf8("checkBox"))
+        self.checkBox.setObjectName("checkBox")
 
         self.retranslateUi(Dialog)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), Dialog.accept)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), Dialog.reject)
+        self.buttonBox.accepted.connect(Dialog.accept)
+        self.buttonBox.rejected.connect(Dialog.reject)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog", None))
-        self.label_2.setText(_translate("Dialog", "Other:", None))
-        self.comboBox.setItemText(0, _translate("Dialog", "TAB", None))
-        self.comboBox.setItemText(1, _translate("Dialog", "Space", None))
-        self.comboBox.setItemText(2, _translate("Dialog", ",", None))
-        self.comboBox.setItemText(3, _translate("Dialog", "|", None))
-        self.comboBox.setItemText(4, _translate("Dialog", "Other", None))
-        self.label.setText(_translate("Dialog", "Delimiter:", None))
-        self.checkBox.setText(_translate("Dialog", "Save as Intensity vs mass (no header)", None))
+        _translate = QtCore.QCoreApplication.translate
+        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        self.label_2.setText(_translate("Dialog", "Other:"))
+        self.comboBox.setItemText(0, _translate("Dialog", "TAB"))
+        self.comboBox.setItemText(1, _translate("Dialog", "Space"))
+        self.comboBox.setItemText(2, _translate("Dialog", ","))
+        self.comboBox.setItemText(3, _translate("Dialog", "|"))
+        self.comboBox.setItemText(4, _translate("Dialog", "Other"))
+        self.label.setText(_translate("Dialog", "Delimiter:"))
+        self.checkBox.setText(_translate("Dialog", "Save as Intensity vs mass (no header)"))
 

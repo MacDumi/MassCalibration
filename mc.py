@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 import sys, os, subprocess
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QApplication
 import glob
 import matplotlib
 matplotlib.use('Qt4Agg')
@@ -27,8 +29,8 @@ import math as mt
 
 logging.basicConfig(level = logging.DEBUG, format = ' %(asctime)s - %(levelname)s - %(message)s')
 
-class MassCalibration (QMainWindow, main.Ui_MainWindow):
-
+class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
+	about_to_quit = QCoreApplication.aboutToQuit
 #initialize everything
 	def __init__(self):
 		super(MassCalibration, self).__init__()
@@ -47,7 +49,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 		self.btn_saveCal.clicked.connect(self.saveCal)
 		self.btn_loadCal.clicked.connect(self.loadCal)
 		self.btCalibrate.clicked.connect(self.Calibrate)
-		self.actionQuit.triggered.connect(self.close)
+		self.actionQuit.triggered.connect(lambda: self.closeEvent(QCloseEvent))
 		self.figure = plt.figure()
 		self.subplot = self.figure.add_subplot(111) #add a subfigure
 		self.canvas = FigureCanvas(self.figure)
@@ -70,7 +72,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 		self.btnPlot.setEnabled(False)
 		self.btnPlot.setDisabled(True)
 		self.listWidget.setContextMenuPolicy(Qt.CustomContextMenu)
-		self.listWidget.connect(self.listWidget,SIGNAL("customContextMenuRequested(QPoint)" ), self.listItemRightClicked)
+		self.listWidget.itemClicked.connect(self.listItemRightClicked)
 		self.tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)
 		self.tableWidget.customContextMenuRequested.connect(self.tableItemRightClicked)
 		self.tableWidget.cellChanged.connect(self.cellchanged)
@@ -97,6 +99,16 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 		matplotlib.rcParams.update({'font.size': self.fontSize})
 		self.New()
 
+	def closeEvent(self,event):
+		result = QMessageBox.question(self,
+			"Confirm Exit...",
+			"Are you sure you want to exit ?",
+			QMessageBox.Yes| QMessageBox.No)
+		event.ignore()
+
+		if result == QMessageBox.Yes:
+			QApplication.exit()
+
 	def ReadConfig(self):
 		config = configparser.ConfigParser()
 		config.read('config/config.ini')
@@ -119,7 +131,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 		result = dialog.exec_()
 		param = 0
 		param = dialog.getData()
-		if result == QDialog.Accepted:
+		if result == QtWidgets.QDialog.Accepted:
 			print ("Nr. of columns: %d\nXcolumn: %d\nYcolumn: %d\ndelimiter: %s\nInverse?: %s" %(int(param[0]), int(param[1]), int(param[2]), param[3], param[4]))
 			return param
 
@@ -129,13 +141,13 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 		param = 0
 		param = dialog.getData()
 		print(result)
-		if result == QDialog.Accepted:
+		if result == QtWidgets.QDialog.Accepted:
 			print ("Delimiter: %s\nTwo columns: %s" %(param[0], param[1]))
 			return param
 
 	def addFiles(self):
 		path = self.initialDir
-		files = QFileDialog.getOpenFileNames(self, 'Load files', path,"Binnary files (*.trc);; Text files (*.txt *.dat);; All files (*.*)")
+		files, _filter = QtWidgets.QFileDialog.getOpenFileNames(self, 'Load files', path,"Binnary files (*.trc);; Text files (*.txt *.dat);; All files (*.*)")
 		self.initialDir=ntpath.dirname(files[0]) #update the initial directory for the Open/Save dialog
 		self.files = np.sort(np.append(self.files, files))
 		self.listWidget.clear()
@@ -264,7 +276,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 		dialog = CropDialog(_min, _max)
 		result = dialog.exec_()
 		params = dialog.getData()
-		if result == QDialog.Accepted:
+		if result == QtWidgets.QDialog.Accepted:
 			try:
 				_min = int(params[0])
 				_max = int(params[1])
@@ -300,7 +312,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 #load calibration file
 	def loadCal(self):
 		path = self.initialDir
-		fname = QFileDialog.getOpenFileName(self, 'Load calibration profile', path,"Calibration (*.mz);; Text files (*.txt *.dat);; All files (*.*)")
+		fname, _filter = QtWidgets.QFileDialog.getOpenFileName(self, 'Load calibration profile', path,"Calibration (*.mz);; Text files (*.txt *.dat);; All files (*.*)")
 		if not fname:
 			return
 		else:
@@ -343,7 +355,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 			self.showWarning("Not calibrated!", "Please calibrate first")
 			return
 		path = self.initialDir
-		name = QFileDialog.getSaveFileName(self, 'Save calibration profile', path, "Calibration (*.mz);; All files (*.*)")
+		name, _filter = QtWidgets.QFileDialog.getSaveFileName(self, 'Save calibration profile', path, "Calibration (*.mz);; All files (*.*)")
 		if not name:
 			return
 		else:
@@ -357,7 +369,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 	def New( self):
 		# open file dialog
 		path = self.initialDir
-		fname = QFileDialog.getOpenFileName(self, 'Open file', path,"Text files (*.txt *.dat);; NPZ files (*.npz *.mc);; Binnary files (*.trc);; All files (*.*)")
+		fname, _filter = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', path,"Text files (*.txt *.dat);; NPZ files (*.npz *.mc);; Binnary files (*.trc);; All files (*.*)")
 		if not fname:
 			return
 		else:
@@ -568,7 +580,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 		self.tableWidget.setItem(rowPosition , 3, QTableWidgetItem("--"))
 
 	def tableItemRightClicked(self, QPos):
-		self.listMenu= QMenu()
+		self.listMenu= QtWidgets.QMenu()
 		menu_item_1 = self.listMenu.addAction("Remove")
 		self.connect(menu_item_1, SIGNAL("triggered()"), self.menuRemoveRow)
 		parentPosition = self.tableWidget.mapToGlobal(QPoint(0, 0))
@@ -611,19 +623,19 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 		if col ==1:
 			try:
 				mass= float(self.tableWidget.currentItem().text())
-				self.tableWidget.currentItem().setBackgroundColor(self.tableWidget.item(0,0).backgroundColor())
+				self.tableWidget.currentItem().setBackground(self.tableWidget.item(0,0).background())
 				self.Calibration.setMass(self.tableWidget.currentRow(), [mass, '--'])
 			except ValueError:
-				self.tableWidget.currentItem().setBackgroundColor(QColor(255,0,0))
+				self.tableWidget.currentItem().setBackground(QColor(255,0,0))
 			self.tableWidget.clearSelection()
 		elif col ==2:
 			try:
 				mass= Formula(self.tableWidget.currentItem().text()).isotope.mass
-				self.tableWidget.currentItem().setBackgroundColor(self.tableWidget.item(0,0).backgroundColor())
+				self.tableWidget.currentItem().setBackground(self.tableWidget.item(0,0).background())
 				self.tableWidget.item(self.tableWidget.currentRow(), 1).setText("%.4f"%mass)
 				self.Calibration.setMass(self.tableWidget.currentRow(), [mass, self.tableWidget.currentItem().text()])
 			except FormulaError:
-				self.tableWidget.currentItem().setBackgroundColor(QColor(255,0,0))
+				self.tableWidget.currentItem().setBackground(QColor(255,0,0))
 			self.tableWidget.clearSelection()
 
 	def relocatePeaks (self):
@@ -635,9 +647,9 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 				self.Calibration.peaks['time'][i] = pos
 				self.Calibration.peaks['intensity'][i] = intens
 				self.tableWidget.item(i, 0).setText("%.6f"%pos)
-				self.tableWidget.item(i, 0).setBackgroundColor(self.tableWidget.item(0,3).backgroundColor())
+				self.tableWidget.item(i, 0).setBackground(self.tableWidget.item(0,3).background())
 			else:
-				self.tableWidget.item(i,0).setBackgroundColor(QColor(255,0,0))
+				self.tableWidget.item(i,0).setBackground(QColor(255,0,0))
 			self.tableWidget.clearSelection()
 		self.plotPeaks()
 
@@ -670,24 +682,32 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 #right click on the plot
 	def onclick(self, event):
 		if event.button == 3:  #right click
-			self.listMenu= QMenu()
+			self.listMenu= QtWidgets.QMenu()
 			menu_item_0 = self.listMenu.addAction("Use the gaussian fit")
 			menu_item_1 = self.listMenu.addAction("Use the cursor data")
 			print("position:\nx=%f\ny=%f" %(event.xdata, event.ydata))
-			self.connect(menu_item_0, SIGNAL("triggered()"), lambda: self.menuPeak(event.xdata, True))
-			self.connect(menu_item_1, SIGNAL("triggered()"), lambda: self.menuPeak(event.xdata, False))
+			menu_item_0.triggered.connect( lambda: self.menuPeak(event.xdata, True))
+			menu_item_1.triggered.connect( lambda: self.menuPeak(event.xdata, False))
 			parentPosition = self.listWidget.mapToGlobal(QPoint(0, 0))
 			cursor = QCursor()
 			self.listMenu.move(cursor.pos() )
 			self.listMenu.show()
 
+	def cleanUp(self):
+		print('closing')
+
+app = None
 
 def main():
-	app=QApplication(sys.argv)
+	global app
+	app = QApplication(sys.argv)
+
 	form = MassCalibration()
 	form.show()
-	app.exec_()
+	app.aboutToQuit.connect(lambda: form.cleanUp)
+	print('and here')
+	app.exec()
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
 	main()

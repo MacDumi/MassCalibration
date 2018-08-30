@@ -1,11 +1,12 @@
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtGui import *
+from PyQt5 import QtWidgets
+from PyQt5.QtGui import *
 import crop_dialog
 import save_dialog
 import dialog
 import numpy as np
 "Crop dialog"
-class CropDialog (QDialog, crop_dialog.Ui_Dialog):
+class CropDialog (QtWidgets.QDialog, crop_dialog.Ui_Dialog):
 	def __init__(self, _min, _max):
 		super(CropDialog, self).__init__()
 		self.setupUi(self)
@@ -19,7 +20,7 @@ class CropDialog (QDialog, crop_dialog.Ui_Dialog):
 
 
 """Import Dialog"""
-class ImportDialog (QDialog, dialog.Ui_Dialog):
+class ImportDialog (QtWidgets.QDialog, dialog.Ui_Dialog):
 
 	def __init__(self, config):
 		super(ImportDialog, self).__init__()
@@ -63,7 +64,7 @@ class ImportDialog (QDialog, dialog.Ui_Dialog):
 
 		return param
 """Save Dialog"""
-class SaveDialog (QDialog, save_dialog.Ui_Dialog):
+class SaveDialog (QtWidgets.QDialog, save_dialog.Ui_Dialog):
 
 	def __init__(self):
 		super(SaveDialog, self).__init__()
