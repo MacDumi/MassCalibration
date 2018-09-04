@@ -111,7 +111,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 
 	def ReadConfig(self):
 		config = configparser.ConfigParser()
-		config.read('config/config.ini')
+		config.read(os.path.dirname(sys.argv[0]) +'/config/config.ini')
 		self.h=int(config['DEFAULT']['header'])
 		self.initialDir=config['DEFAULT']['path']
 		self.yCol=int(config['DEFAULT']['y'])
@@ -434,7 +434,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		path = self.initialDir
 		if self.tabWidget.currentIndex()==1:
 			if self.decay!=[]:
-				name = QFileDialog.getSaveFileName(self, 'Save file', self.fname, "Text files (*.txt);; Data files (*.dat);; All files (*.*)")
+				name, _filter = QtWidgets.QFileDialog.getSaveFileName(self, 'Save file', self.fname, "Text files (*.txt);; Data files (*.dat);; All files (*.*)")
 				if not name:
 					return
 				else:
@@ -444,7 +444,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 			if not self.Calibration.calibrated:
 				self.showWarning("Error", "No calibration have been applied\nFirst calibrate your data")
 				return
-			name = QFileDialog.getSaveFileName(self, 'Save file', self.fname, "Text files (*.txt);; Data files (*.dat);; All files (*.*)")
+			name, _filter = QtWidgets.QFileDialog.getSaveFileName(self, 'Save file', self.fname, "Text files (*.txt);; Data files (*.dat);; All files (*.*)")
 			if not name:
 				return
 			else:
@@ -471,7 +471,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 			self.showWarning("Error", "No calibration have been applied\nFirst calibrate your data")
 			return
 		path = self.initialDir
-		name = QFileDialog.getSaveFileName(self, 'Save file', path, "NPZ files (*.npz);; All files (*.*)")
+		name, _filter = QtWidgets.QFileDialog.getSaveFileName(self, 'Save file', path, "NPZ files (*.npz);; All files (*.*)")
 		if not name:
 			return
 		else:
