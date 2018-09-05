@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=2.2
+Name=MassCalibration
+Comment=Program used to calibrate mass spectra
+Exec=/usr/lib/masscalibration/mc.py
+Icon=//usr/lib/masscalibration/icon.png
+Path=/usr/lib/masscalibration
+Terminal=false
+Type=Application
+Categories=Utility;Application;
+StartupNotify=true

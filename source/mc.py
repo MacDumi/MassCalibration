@@ -111,7 +111,10 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 
 	def ReadConfig(self):
 		config = configparser.ConfigParser()
-		config.read(os.path.dirname(sys.argv[0]) +'/config/config.ini')
+		try:
+			config.read('/usr/lib/masscalibration/config/config.ini')
+		except:
+			config.read(os.path.dirname(sys.argv[0]) +'/config/config.ini')
 		self.h=int(config['DEFAULT']['header'])
 		self.initialDir=config['DEFAULT']['path']
 		self.yCol=int(config['DEFAULT']['y'])
