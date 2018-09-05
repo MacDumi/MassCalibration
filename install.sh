@@ -14,8 +14,8 @@
 		install -m644 *.* $DATADIR/
 		install -m755 mc.py $DATADIR/
 
-		install -d ./config $DATADIR/config
-		install -m644 ./config/* $DATADIR/config/
+		install -d ./config $HOME/.config/masscalibration/
+		install -m644 ./config/* $HOME/.config/masscalibration
 
 		install -d ./imports $DATADIR/imports
 		install -m644 ./imports/* $DATADIR/imports/
