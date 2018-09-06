@@ -50,8 +50,14 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.btn_loadCal.clicked.connect(self.loadCal)
 		self.btCalibrate.clicked.connect(self.Calibrate)
 		self.actionQuit.triggered.connect(lambda: self.closeEvent(QCloseEvent))
-		self.figure = plt.figure()
-		self.subplot = self.figure.add_subplot(111) #add a subfigure
+		self.config = self.ReadConfig()
+		self.figure = plt.figure(edgecolor=self.fg_col, facecolor=self.bg_col)
+		self.subplot = self.figure.add_subplot(111,facecolor=self.bg_col) #add a subfigure
+		self.subplot.spines['bottom'].set_color(self.fg_col)
+		self.subplot.spines['left'].set_color(self.fg_col)
+		self.subplot.patch.set_facecolor(self.bg_col)
+		self.subplot.xaxis.set_tick_params(color=self.fg_col, labelcolor=self.fg_col)
+		self.subplot.yaxis.set_tick_params(color=self.fg_col, labelcolor=self.fg_col)
 		self.canvas = FigureCanvas(self.figure)
 		self.canvas.setFocusPolicy(Qt.ClickFocus )
 		self.canvas.setFocus()
@@ -77,7 +83,6 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.tableWidget.customContextMenuRequested.connect(self.tableItemRightClicked)
 		self.tableWidget.cellChanged.connect(self.cellchanged)
 		self.canvas.mpl_connect('button_press_event', self.onclick)
-		self.config = self.ReadConfig()
 		self.fname = ''
 		self.lastDrawn=0
 		self.data = Data()
@@ -120,6 +125,12 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.yCol=int(config['DEFAULT']['y'])
 		self.xCol=int(config['DEFAULT']['x'])
 		self.inversed=bool(config['DEFAULT']['inversed'])
+		if bool(int(config['DEFAULT']['dark'])):
+			self.fg_col = 'white'
+			self.bg_col = 'black'
+		else:
+			self.fg_col = 'black'
+			self.bg_col = 'white'
 		return config
 
 	def rmBaseline(self):
@@ -531,8 +542,8 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 				self.subplot.set_ylim([self.data.min, 1.1 * self.data.max])
 
 			self.subplot.set_xlim([self.data.M[0],500])#self.data.M[-1]]) #X axis limits
-			self.subplot.set_ylabel('Intensity', fontsize = self.fontSize)
-			self.subplot.set_xlabel('m/z', fontsize = self.fontSize) #calibrated data
+			self.subplot.set_ylabel('Intensity',color=self.fg_col, fontsize = self.fontSize)
+			self.subplot.set_xlabel('m/z', color=self.fg_col, fontsize = self.fontSize) #calibrated data
 
 		else:
 			if self.inversed:	#plot the inversed data
@@ -542,8 +553,8 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 				self.subplot.plot(self.data.X , self.data.Y)
 				self.subplot.set_ylim([self.data.min, 1.1 * self.data.max])
 			self.subplot.set_xlim([self.data.X[0],self.data.X[self.data.len-1]]) #X axis limits
-			self.subplot.set_ylabel('Intensity', fontsize = self.fontSize)
-			self.subplot.set_xlabel('time of flight', fontsize = self.fontSize) #uncalibrated data
+			self.subplot.set_ylabel('Intensity',color=self.fg_col, fontsize = self.fontSize)
+			self.subplot.set_xlabel('time of flight', color=self.fg_col, fontsize = self.fontSize) #uncalibrated data
 		self.scatter = 0
 		self.plotPeaks()
 		self.canvas.draw() #draw everything to the screen

@@ -33,6 +33,9 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QTabWidget" name="tabWidget">
+      <property name="styleSheet">
+       <string notr="true">file:///home/cat/Workspace/QTDark/QTDark.stylesheet</string>
+      </property>
       <property name="currentIndex">
        <number>0</number>
       </property>
@@ -75,6 +78,9 @@
             </item>
             <item>
              <widget class="QTableWidget" name="tableWidget">
+              <property name="styleSheet">
+               <string notr="true">file:///home/cat/Workspace/QTDark/QTDark.stylesheet</string>
+              </property>
               <column>
                <property name="text">
                 <string>Time</string>
