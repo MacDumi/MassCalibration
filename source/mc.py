@@ -1,14 +1,8 @@
 #!/usr/bin/python3
-import sys, os, subprocess
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QApplication
 import glob
 import matplotlib
-matplotlib.use('Qt4Agg')
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
+matplotlib.use('Qt5Agg')
+import sys, os, subprocess
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -16,21 +10,30 @@ import random
 import ntpath
 import main
 import logging
+import peakutils
+import configparser
+import time as tm
+import math as mt
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QApplication, QListWidget, QListWidgetItem
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
 from imports.zoom import *
 from imports.molmass import *
 from imports.dialogs import *
 from imports.data import *
 from imports.calibration import *
-import peakutils
-import configparser
 from imports.readTrc import readTrc
-import time as tm
-import math as mt
 
 logging.basicConfig(level = logging.DEBUG, format = ' %(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 	about_to_quit = QCoreApplication.aboutToQuit
+	resized = pyqtSignal()
+
 #initialize everything
 	def __init__(self):
 		super(MassCalibration, self).__init__()
@@ -49,8 +52,12 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.btn_saveCal.clicked.connect(self.saveCal)
 		self.btn_loadCal.clicked.connect(self.loadCal)
 		self.btCalibrate.clicked.connect(self.Calibrate)
+		self.actionCalibrate.triggered.connect(self.Calibrate)
 		self.actionQuit.triggered.connect(lambda: self.closeEvent(QCloseEvent))
 		self.config = self.ReadConfig()
+
+		self.resized.connect(self.onResize)
+
 		self.figure = plt.figure(edgecolor=self.fg_col, facecolor=self.bg_col)
 		self.subplot = self.figure.add_subplot(111,facecolor=self.bg_col) #add a subfigure
 		self.subplot.spines['bottom'].set_color(self.fg_col)
@@ -64,7 +71,13 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.toolbar = NavigationToolbar(self.canvas, self)
 		self.gridLayout_3.addWidget(self.canvas)
 		self.gridLayout_3.addWidget(self.toolbar)
-		self.figure_1 = plt.figure()
+		self.figure_1 = plt.figure(edgecolor=self.fg_col, facecolor=self.bg_col)
+		self.subplot_1 = self.figure_1.add_subplot(111,facecolor=self.bg_col) #add a subfigure
+		self.subplot_1.spines['bottom'].set_color(self.fg_col)
+		self.subplot_1.spines['left'].set_color(self.fg_col)
+		self.subplot_1.patch.set_facecolor(self.bg_col)
+		self.subplot_1.xaxis.set_tick_params(color=self.fg_col, labelcolor=self.fg_col)
+		self.subplot_1.yaxis.set_tick_params(color=self.fg_col, labelcolor=self.fg_col)
 		self.canvas_1 = FigureCanvas(self.figure_1)
 		self.toolbar_1 = NavigationToolbar(self.canvas_1, self)
 		self.gridLayout_4.addWidget(self.canvas_1)
@@ -103,6 +116,15 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.fontSize = int(self.config['DEFAULT']['fontSize'])
 		matplotlib.rcParams.update({'font.size': self.fontSize})
 		self.New()
+
+	def resizeEvent(self, event):
+		self.resized.emit()
+		return super(MassCalibration, self).resizeEvent(event)
+
+	def onResize(self):
+		logger.info("Winndow resized")
+		self.figure.tight_layout()
+
 
 	def closeEvent(self,event):
 		result = QMessageBox.question(self,
@@ -169,8 +191,9 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 			item = QListWidgetItem(ntpath.basename(file_))
 			self.listWidget.addItem(item)
 
+
 	def listItemRightClicked(self, QPos):
-		self.listMenu= QMenu()
+		self.listMenu= QtWidgets.QMenu()
 		menu_item_1 = self.listMenu.addAction("Plot Spectrum")
 		menu_item_2 = self.listMenu.addAction("Move Up")
 		menu_item_3 = self.listMenu.addAction("Move Down")
@@ -180,8 +203,9 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		menu_item_2.triggered.connect(self.menuUpClicked)
 		menu_item_3.triggered.connect(self.menuDownClicked)
 		parentPosition = self.listWidget.mapToGlobal(QPoint(0, 0))
-		self.listMenu.move(parentPosition + QPos)
+		self.listMenu.move(parentPosition )
 		self.listMenu.show()
+
 
 	def menuRemoveClicked(self):
 		currentItemName=str(self.listWidget.currentItem().text() )
@@ -216,7 +240,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 			self.listWidget.setCurrentRow(index+1)
 
 	def listClear(self):
-		self.figure_1.clf()	#clear the figure
+		self.subplot_1.clear()
 		self.canvas_1.draw() #draw everything to the screen
 		self.files=[]
 		self.decay=[]
@@ -225,14 +249,14 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 
 	def menuPlotClicked(self):
 		x, y, d = readTrc(self.files[self.listWidget.currentRow()])
+		y = -y
 		baseline= peakutils.baseline(abs(y))
 		y = 1000*(y - baseline)
 		x = x*1000
-		self.figure_1.clf()	#clear the figure
-		self.subplot_1 = self.figure_1.add_subplot(111) #add a subfigure
+		self.subplot_1.clear()
 		self.subplot_1.plot(x, y)
-		self.subplot_1.set_xlabel('time of flight, ms', fontsize = self.fontSize) #uncalibrated data
-		self.subplot_1.set_ylabel('Intensity, mV', fontsize = self.fontSize)
+		self.subplot_1.set_xlabel('time of flight, ms', color=self.fg_col, fontsize = self.fontSize) #uncalibrated data
+		self.subplot_1.set_ylabel('Intensity, mV', color=self.fg_col, fontsize = self.fontSize)
 		self.subplot_1.set_xlim([x[0], x[-1]]) #X axis limits
 		self.subplot_1.set_ylim([min(y), 1.1*max(y)])
 		self.figure_1.subplots_adjust(left=0.085, bottom=0.08, top=0.955, right=0.995) #reduce margins
@@ -250,6 +274,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		out=[[0,0]]
 		for item in self.files:
 			x, y, d = readTrc(item)
+			y=-y
 			baseline= peakutils.baseline(abs(y))
 			y = 1000*(y - baseline)
 			x = x*1000
@@ -267,13 +292,12 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.decay = np.delete(out, 0, axis=0)
 		np.savetxt(self.initialDir+'/out.dat', self.decay, delimiter=' ')
 		print("output saved")
-		self.figure_1.clf()	#clear the figure
-		self.subplot_1 = self.figure_1.add_subplot(111) #add a subfigure
+		self.subplot_1.clear()
 		self.subplot_1.scatter(self.decay[:,0], self.decay[:,1])
-		self.subplot_1.set_xlabel('nr of shots', fontsize = self.fontSize)
-		self.subplot_1.set_ylabel('Intensity, V s', fontsize = self.fontSize)
+		self.subplot_1.set_xlabel('nr of shots',color=self.fg_col, fontsize = self.fontSize)
+		self.subplot_1.set_ylabel('Intensity, V s', color=self.fg_col, fontsize = self.fontSize)
 		self.subplot_1.set_ylim(ymin=0)
-		self.subplot_1.set_title('Decay curve')
+		self.subplot_1.set_title('Decay curve', color=self.fg_col)
 		self.progressBar.setValue(0)
 		self.figure_1.savefig(self.initialDir+'/decay_fig.png')
 		print('figure saved')
@@ -305,7 +329,6 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 			self.Calibration.calibrated = False
 			self.label_2.setText("")
 			self.Plot()
-
 
 	def Calibrate(self):
 		if (self.Calibration.calibrated):
@@ -350,7 +373,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 
 				temp = np.loadtxt(fname, delimiter=',', dtype = np.str)
 				for i, time in enumerate(temp[:,0]):
-					pos, intens, error = self.findPeak(self.data, float(time), False)
+					pos, intens, error = self.findPeak(self.data, float(time), Gfit=True, cursor=False)
 					self.Calibration.addPeak([pos, intens, float(temp[i,2]), temp[i,3]])
 					rowPosition = self.tableWidget.rowCount()
 					self.tableWidget.insertRow(rowPosition)
@@ -393,6 +416,8 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 				try:
 					x, y, d = readTrc(fname)
 					DataIn = np.column_stack((x, y))
+					self.xCol = 0
+					self.yCol = 1
 				except IOError:
 					self.showWarning('Error', 'Could not read the file')
 					return
@@ -530,8 +555,6 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 
 #Plot the data
 	def Plot(self):
-		#self.figure.clf()	#clear the figure
-		#self.subplot = self.figure.add_subplot(111) #add a subfigure
 		self.subplot.clear()
 		if self.Calibration.calibrated:
 			if self.inversed:	#plot the inversed data
@@ -576,22 +599,23 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 			self.scatter=0
 			self.canvas.draw()
 
-	def menuPeak(self,x, Gfit):
+	def menuPeak(self,x, **kwargs):
 		mass = -1
 		text = '--'
 		if self.Calibration.calibrated:
 			mass = x
 			x = np.interp(mass, self.data.M, self.data.X)
 			text = str(mass)
-		pos, intens, error = self.findPeak(self.data, x, Gfit)
-		self.Calibration.addPeak([pos, intens, mass, '--'])
-		rowPosition = self.tableWidget.rowCount()
-		self.plotPeaks()
-		self.tableWidget.insertRow(rowPosition)
-		self.tableWidget.setItem(rowPosition , 0, QTableWidgetItem("%.6f" % pos))
-		self.tableWidget.setItem(rowPosition , 1, QTableWidgetItem(text))
-		self.tableWidget.setItem(rowPosition , 2, QTableWidgetItem("--"))
-		self.tableWidget.setItem(rowPosition , 3, QTableWidgetItem("--"))
+		pos, intens, error = self.findPeak(self.data, x, **kwargs)
+		if not error:
+			self.Calibration.addPeak([pos, intens, mass, '--'])
+			rowPosition = self.tableWidget.rowCount()
+			self.plotPeaks()
+			self.tableWidget.insertRow(rowPosition)
+			self.tableWidget.setItem(rowPosition , 0, QTableWidgetItem("%.6f" % pos))
+			self.tableWidget.setItem(rowPosition , 1, QTableWidgetItem(text))
+			self.tableWidget.setItem(rowPosition , 2, QTableWidgetItem("--"))
+			self.tableWidget.setItem(rowPosition , 3, QTableWidgetItem("--"))
 
 	def tableItemRightClicked(self, QPos):
 		self.listMenu= QtWidgets.QMenu()
@@ -631,7 +655,6 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 			self.scatter = self.subplot.scatter(self.Calibration.peaks['time'], self.Calibration.peaks['intensity'], s =70, facecolors='r', marker='v')
 		self.canvas.draw()
 
-
 	def cellchanged(self):
 		col = self.tableWidget.currentColumn()
 		if col ==1:
@@ -655,7 +678,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 	def relocatePeaks (self):
 		print(self.Calibration.peaks['time'])
 		for i in np.arange(0, len(self.Calibration.peaks['time'])):
-			pos, intens, error = self.findPeak(self.data, self.Calibration.peaks['time'][i], True)
+			pos, intens, error = self.findPeak(self.data, self.Calibration.peaks['time'][i], Gfit = True, cursor = False )
 			print('Error: ', error)
 			if not error:
 				self.Calibration.peaks['time'][i] = pos
@@ -668,25 +691,39 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.plotPeaks()
 
 
-	def findPeak(self, data, x, Gfit ):
-		print('Gfit = ', Gfit)
+	def findPeak(self, data, x, **kwargs ):
+		cursor = kwargs.get('cursor', True)
+		gfit = kwargs.get('Gfit', False)
 		self.min = data.min
 		self.max = data.max
-		width=70
+		width = 40
 		Xpos = x
 		ind=(np.abs(data.X-Xpos)).argmin()
 		Ypos = data.Y[ind]
-		error = 0
-		if Gfit:
+		dataX = data.X[ind-width: ind+width]
+		dataY = data.Y[ind-width: ind+width]
+		error = False
+		if not cursor:
 			try:
-				#Xpos = peakutils.gaussian_fit(data.X[ind-width: ind+width], data.Y[ind-width:ind+width], center_only=True )
-				dt=data.Y[ind-width: ind+width]
-				Ypos = max(data.Y[ind-width+peakutils.indexes(dt,thres = 0.02/max(dt), min_dist =100)])
-				Xpos = data.X[data.Y ==Ypos][0]
-				logging.info("New pos %f" % Xpos)
+				indexes = peakutils.indexes(dataY,thres = 0.2, min_dist =30)
+				Ypos = max(dataY[indexes])
+				idx = np.argwhere(dataY==Ypos)[0]
+				print("Index= ", idx)
+				if gfit:
+					Xpos = peakutils.interpolate(dataX, dataY, ind=idx)
+				else:
+					Xpos = dataX[idx]
+				shift = 100*abs(Xpos-x)/x
+				print(shift)
+				if shift>10:
+					error = True
+					Xpos = x
+					self.lbStatus.setText("Failed to find a peak")
 			except RuntimeError:
-				print("Failed to fit a gaussian")
-				error = 1
+				self.lbStatus.setText("Failed to find a peak")
+				error = True
+		if not error:
+			self.lbStatus.setText("Peak added at: %f" % Xpos)
 		#if (self.dwTime>(-1)):
 			#self.subplot.lines.remove(self.cursor)
 		self.dwTime = tm.time()
@@ -697,11 +734,13 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 	def onclick(self, event):
 		if event.button == 3:  #right click
 			self.listMenu= QtWidgets.QMenu()
-			menu_item_0 = self.listMenu.addAction("Use the gaussian fit")
-			menu_item_1 = self.listMenu.addAction("Use the cursor data")
+			menu_item_0 = self.listMenu.addAction("Fit a gaussian")
+			menu_item_1 = self.listMenu.addAction("Find the maximum")
+			menu_item_2 = self.listMenu.addAction("Use the cursor data")
 			print("position:\nx=%f\ny=%f" %(event.xdata, event.ydata))
-			menu_item_0.triggered.connect( lambda: self.menuPeak(event.xdata, True))
-			menu_item_1.triggered.connect( lambda: self.menuPeak(event.xdata, False))
+			menu_item_0.triggered.connect( lambda: self.menuPeak(event.xdata, Gfit = True, cursor=False))
+			menu_item_1.triggered.connect( lambda: self.menuPeak(event.xdata, cursor = False))
+			menu_item_2.triggered.connect( lambda: self.menuPeak(event.xdata))
 			parentPosition = self.listWidget.mapToGlobal(QPoint(0, 0))
 			cursor = QCursor()
 			self.listMenu.move(cursor.pos() )
@@ -719,7 +758,6 @@ def main():
 	form = MassCalibration()
 	form.show()
 	app.aboutToQuit.connect(lambda: form.cleanUp)
-	print('and here')
 	app.exec()
 
 

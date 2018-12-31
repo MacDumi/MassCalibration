@@ -12,7 +12,8 @@ class Calibration:
 		self.coef = [-1, -1, -1]
 
 	def calibrate(self):
-		self.coef = np.polyfit(self.peaks['time'], self.peaks['mass'], 2)
+		print(self.peaks)
+		self.coef = np.polyfit(self.peaks['time'].astype('float'), self.peaks['mass'].astype('float'), 2)
 		print(self.coef)
 		self.calibration = np.poly1d(self.coef)
 		self.calibrated = True
@@ -46,9 +47,9 @@ class Calibration:
 
 	def calcError(self):
 		self.error = []
-		print(self.calibration(self.peaks['time']))
+		print(self.calibration(self.peaks['time'].values))
 		for time in self.peaks['time']:
-			self.error = np.append(self.error, self.peaks['mass'].values[self.peaks['time']==time][0] -self.calibration(time))
+			self.error = np.append(self.error, self.peaks['mass'].values[self.peaks['time'].values==time[0]][0] -self.calibration(time[0]))
 		return self.error
 
 	def inMass(self, time):
