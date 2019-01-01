@@ -32,7 +32,7 @@ from imports.readTrc import readTrc
 class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 	about_to_quit = QCoreApplication.aboutToQuit
 	resized = pyqtSignal()
-	logging.config.fileConfig('log.ini')
+	logging.config.fileConfig('logs/log.ini')
 
 #initialize everything
 	def __init__(self):
