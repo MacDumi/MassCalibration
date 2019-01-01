@@ -10,6 +10,7 @@ import random
 import ntpath
 import main
 import logging
+import logging.config
 import peakutils
 import configparser
 import time as tm
@@ -27,12 +28,11 @@ from imports.data import *
 from imports.calibration import *
 from imports.readTrc import readTrc
 
-logging.basicConfig(level = logging.DEBUG, format = ' %(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 
 class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 	about_to_quit = QCoreApplication.aboutToQuit
 	resized = pyqtSignal()
+	logging.config.fileConfig('log.ini')
 
 #initialize everything
 	def __init__(self):
@@ -122,7 +122,6 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		return super(MassCalibration, self).resizeEvent(event)
 
 	def onResize(self):
-		logger.info("Winndow resized")
 		self.figure.tight_layout()
 
 
@@ -719,8 +718,10 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 					error = True
 					Xpos = x
 					self.lbStatus.setText("Failed to find a peak")
+					logging.warning("Failed to find a peak")
 			except RuntimeError:
 				self.lbStatus.setText("Failed to find a peak")
+				logging.exception("Failed to find a peak")
 				error = True
 		if not error:
 			self.lbStatus.setText("Peak added at: %f" % Xpos)
