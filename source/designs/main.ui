@@ -379,6 +379,7 @@
      <string>Calibratio&amp;n</string>
     </property>
     <addaction name="actionCalibrate"/>
+    <addaction name="actionCalibrate_formula"/>
     <addaction name="actionUncalibrate"/>
     <addaction name="separator"/>
     <addaction name="actionLoadProfile"/>
@@ -490,6 +491,11 @@
   <action name="actionSaveProfile">
    <property name="text">
     <string>&amp;Save profile</string>
+   </property>
+  </action>
+  <action name="actionCalibrate_formula">
+   <property name="text">
+    <string>Calibrate (formula)</string>
    </property>
   </action>
  </widget>

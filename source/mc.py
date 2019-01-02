@@ -49,6 +49,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.actionRm_baseline.triggered.connect(self.rmBaseline)
 		self.actionUncalibrate.triggered.connect(self.Uncalibrate)
 		self.actionCrop.triggered.connect(self.Crop)
+		self.actionCalibrate_formula.triggered.connect(self.CalibrateFormula)
 		self.btn_removePeaks.clicked.connect(self.clearTable)
 		self.btn_saveCal.clicked.connect(self.saveCal)
 		self.btn_loadCal.clicked.connect(self.loadCal)
@@ -120,6 +121,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		return super(MassCalibration, self).resizeEvent(event)
 
 	def onResize(self):
+		#tight layout on resize
 		self.figure.tight_layout()
 
 
@@ -187,7 +189,6 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		for file_ in self.files:
 			item = QListWidgetItem(ntpath.basename(file_))
 			self.listWidget.addItem(item)
-
 
 	def listItemRightClicked(self, QPos):
 		self.listMenu= QtWidgets.QMenu()
@@ -329,10 +330,14 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 			self.Plot()
 
 	def Calibrate(self):
-		if (self.Calibration.calibrated):
+		self.Calibration.calibrate()
+		self.CalibrateFormula()
+
+	def CalibrateFormula(self):
+		if self.Calibration.calibrated:
 			self.Calibration.calibrated = False
-		if (self.checkMasses()):
-			self.coef = np.asarray(['%.5g'%n for n in self.Calibration.calibrate()])
+		if not self.Calibration.coef[0]  ==-1:
+			self.coef = np.asarray(['%.5g'%n for n in self.Calibration.coef])
 			if not self.coef[1][0]=='-':
 				self.coef[1] = "+"+self.coef[1]
 			if not self.coef[2][0]=='-':
@@ -342,7 +347,13 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 			error = self.Calibration.calcError()
 			for i in np.arange(0, len(error)):
 				self.tableWidget.item(i, 3).setText("%.4f"%error[i])
-		self.Plot()  #plot spectrum
+			self.Calibration.calibrated = True
+			self.Plot()  #plot spectrum
+		else:
+			self.showWarning("Error", "No calibration found")
+			logging.warning("Calibration : no calibration found")
+
+
 
 #load calibration file
 	def loadCal(self):
@@ -388,6 +399,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 	def saveCal(self):
 		if not self.Calibration.calibrated:
 			self.showWarning("Not calibrated!", "Please calibrate first")
+			logging.warning("Save calibration : not calibrated")
 			return
 		path = self.initialDir
 		name, _filter = QtWidgets.QFileDialog.getSaveFileName(self, 'Save calibration profile', path, "Calibration (*.mz);; All files (*.*)")
@@ -398,7 +410,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 				name = name+'.mz'
 			text = "Calibration coefficients\nhighest to lower power\n%.6g, %.6g, %.6g\n\nTime, Intensity, Mass, Formula" %(self.Calibration.coef[0], self.Calibration.coef[1], self.Calibration.coef[2])
 			np.savetxt(name, self.Calibration.peaks.values, header = text,fmt='%.4f,  %.1f, %.4f, %s')
-			print("Calibration profile saved")
+			logging.info("Calibration profile saved")
 
 #new file
 	def New( self):
@@ -478,10 +490,11 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 					return
 				else:
 					np.savetxt(name, self.decay,header="Signal decay", delimiter='	')
-					print("file saved")
+					logging.info("Save : file saved")
 		else:
 			if not self.Calibration.calibrated:
-				self.showWarning("Error", "No calibration have been applied\nFirst calibrate your data")
+				self.showWarning("Error", "No calibration hase been applied\nFirst calibrate your data")
+				logging.warning("Calibration : no calibration has been applied")
 				return
 			name, _filter = QtWidgets.QFileDialog.getSaveFileName(self, 'Save file', self.fname, "Text files (*.txt);; Data files (*.dat);; All files (*.*)")
 			if not name:
@@ -503,11 +516,12 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 						np.savetxt(name, np.transpose([self.data.X[self.data.zero:],self.data.M, self.data.max-self.data.Y[self.data.zero:]]), header = header, delimiter=params[0])
 					else:
 						np.savetxt(name, np.transpose([self.data.X[self.data.zero:],self.data.M, self.data.Y[self.data.zero:]]), header = header, delimiter=params[0])
-				print("file saved")
+				logging.info("Save : file saved")
 
 	def SaveAs(self):
 		if not self.Calibration.calibrated:
 			self.showWarning("Error", "No calibration have been applied\nFirst calibrate your data")
+			logging.warning("Calibration : no calibration has been applied")
 			return
 		path = self.initialDir
 		name, _filter = QtWidgets.QFileDialog.getSaveFileName(self, 'Save file', path, "NPZ files (*.npz);; All files (*.*)")
@@ -524,7 +538,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 					np.savez_compressed(name, a=np.transpose([self.data.X[self.data.zero:],self.data.M, self.data.max-self.data.Y[self.data.zero:]]))
 				else:
 					np.savez_compressed(name, a=np.transpose([self.data.X[self.data.zero:],self.data.M, self.data.Y[self.data.zero:]]))
-			print("file saved")
+			logging.info("file saved")
 
 #warning pop-up message
 	def showWarning(self, title, message):
@@ -636,6 +650,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 	def checkMasses(self):
 		if len(self.Calibration.peaks['mass'].values)==0:
 			self.showWarning("No calibration data", "Please add calibration peaks")
+			logging.warning("Calibration : no calibration peaks")
 			return False
 		if -1 in self.Calibration.peaks['mass'].values:
 			return False
@@ -644,7 +659,6 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 
 	def menuRemoveRow(self):
 		index = self.tableWidget.currentRow()
-		print(index)
 		self.tableWidget.removeRow(index)
 		self.Calibration.removePeak(index)
 		if (self.scatter):
@@ -663,6 +677,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 				self.tableWidget.currentItem().setBackground(self.tableWidget.item(0,0).background())
 				self.Calibration.setMass(self.tableWidget.currentRow(), [mass, '--'])
 			except ValueError:
+				logging.warning("Cell value : non numeric value")
 				self.tableWidget.currentItem().setBackground(QColor(255,0,0))
 			self.tableWidget.clearSelection()
 		elif col ==2:
@@ -736,7 +751,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 			menu_item_0 = self.listMenu.addAction("Fit a gaussian")
 			menu_item_1 = self.listMenu.addAction("Find the maximum")
 			menu_item_2 = self.listMenu.addAction("Use the cursor data")
-			print("position:\nx=%f\ny=%f" %(event.xdata, event.ydata))
+			logging.info("position: x=%f y=%f" %(event.xdata, event.ydata))
 			menu_item_0.triggered.connect( lambda: self.menuPeak(event.xdata, Gfit = True, cursor=False))
 			menu_item_1.triggered.connect( lambda: self.menuPeak(event.xdata, cursor = False))
 			menu_item_2.triggered.connect( lambda: self.menuPeak(event.xdata))

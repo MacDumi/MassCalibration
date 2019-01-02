@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import logging
 
 
 """Calibration data"""
@@ -21,7 +22,7 @@ class Calibration:
 
 	def addPeak(self, params):
 		self.peaks.loc[self.peaks.shape[0]] = params
-		print('peak at %f added' %params[0])
+		logging.info('Calibration : peak at %f added' %params[0])
 
 	def removePeak(self, index):
 		self.peaks.drop(index, inplace=True)
@@ -36,9 +37,9 @@ class Calibration:
 		try:
 			self.calibration = np.poly1d(coef)
 			self.coef = coef
-			print("Parameters loaded")
+			logging.info("Calibration : Parameters loaded")
 		except Exception:
-			print("Bad values")
+			logging.exception("Calibration : Bad values")
 
 	def setMass(self, index, params):
 		self.peaks.iloc[index, 2]=params[0]

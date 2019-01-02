@@ -223,6 +223,8 @@ class Ui_MainWindow(object):
         self.actionLoadProfile.setObjectName("actionLoadProfile")
         self.actionSaveProfile = QtWidgets.QAction(MainWindow)
         self.actionSaveProfile.setObjectName("actionSaveProfile")
+        self.actionCalibrate_formula = QtWidgets.QAction(MainWindow)
+        self.actionCalibrate_formula.setObjectName("actionCalibrate_formula")
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addAction(self.actionSave_as)
@@ -236,6 +238,7 @@ class Ui_MainWindow(object):
         self.menuHelp.addSeparator()
         self.menuHelp.addAction(self.actionAbout)
         self.menuTools.addAction(self.actionCalibrate)
+        self.menuTools.addAction(self.actionCalibrate_formula)
         self.menuTools.addAction(self.actionUncalibrate)
         self.menuTools.addSeparator()
         self.menuTools.addAction(self.actionLoadProfile)
@@ -298,4 +301,5 @@ class Ui_MainWindow(object):
         self.actionUncalibrate.setShortcut(_translate("MainWindow", "Ctrl+Shift+R"))
         self.actionLoadProfile.setText(_translate("MainWindow", "&Load profile"))
         self.actionSaveProfile.setText(_translate("MainWindow", "&Save profile"))
+        self.actionCalibrate_formula.setText(_translate("MainWindow", "Calibrate (formula)"))
 

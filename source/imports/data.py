@@ -18,9 +18,11 @@ class Data:
 		if self.X[-1]<1:
 			self.X *= 1e6
 			logging.warning("New spectrum : correction factor added to self.X - 1e6")
-		if max(self.Y<1):
+		if (self.max-self.min)<=1:
 			self.Y *= 1e6
 			logging.warning("New spectrum : correction factor added to self.Y - 1e6")
+			self.max = max(self.Y)
+			self.min = min(self.Y)
 		if self.X[0]<0:
 			self.crop(0, self.X[-1], False)
 		logging.info("New spectrum : Min value %f" %self.min)
