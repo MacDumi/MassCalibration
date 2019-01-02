@@ -320,6 +320,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 				self.Plot()
 			except ValueError:
 				self.showWarning("Non valid data", "Only numbers are allowed")
+				logging.warning("Crop dialog : non valid input data")
 
 	def Uncalibrate(self):
 		if (self.Calibration.calibrated):
