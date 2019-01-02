@@ -38,11 +38,12 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 	def __init__(self):
 		super(MassCalibration, self).__init__()
 		self.setupUi(self)
+		#connect to UI
 		self.actionNew.triggered.connect(self.New)
 		self.actionAbout.triggered.connect(self.about)
 		self.actionInstructions.triggered.connect(self.Instruction)
 		self.actionLoadProfile.triggered.connect(self.loadCal)
-		self.actionSave_profile.triggered.connect(self.saveCal)
+		self.actionSaveProfile.triggered.connect(self.saveCal)
 		self.actionSave.triggered.connect(self.Save)
 		self.actionSave_as.triggered.connect(self.SaveAs)
 		self.actionRm_baseline.triggered.connect(self.rmBaseline)
@@ -54,10 +55,18 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.btCalibrate.clicked.connect(self.Calibrate)
 		self.actionCalibrate.triggered.connect(self.Calibrate)
 		self.actionQuit.triggered.connect(lambda: self.closeEvent(QCloseEvent))
-		self.config = self.ReadConfig()
+		self.btnAdd.clicked.connect(self.addFiles)
+		self.btnClear.clicked.connect(self.listClear)
+		self.btnPlot.clicked.connect(self.plotDecay)
+		self.pushButton_2.clicked.connect(self.menuUpClicked)
+		self.pushButton.clicked.connect(self.menuDownClicked)
+		self.pushButton_3.clicked.connect(self.menuRemoveClicked)
+		self.btnPlot.setEnabled(False)
+		self.btnPlot.setDisabled(True)
 
 		self.resized.connect(self.onResize)
 
+		self.config = self.ReadConfig()
 		self.figure = plt.figure(edgecolor=self.fg_col, facecolor=self.bg_col)
 		self.subplot = self.figure.add_subplot(111,facecolor=self.bg_col) #add a subfigure
 		self.subplot.spines['bottom'].set_color(self.fg_col)
@@ -82,18 +91,8 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.toolbar_1 = NavigationToolbar(self.canvas_1, self)
 		self.gridLayout_4.addWidget(self.canvas_1)
 		self.gridLayout_4.addWidget(self.toolbar_1)
-		self.btnAdd.clicked.connect(self.addFiles)
-		self.btnClear.clicked.connect(self.listClear)
-		self.btnPlot.clicked.connect(self.plotDecay)
-		self.pushButton_2.clicked.connect(self.menuUpClicked)
-		self.pushButton.clicked.connect(self.menuDownClicked)
-		self.pushButton_3.clicked.connect(self.menuRemoveClicked)
-		self.btnPlot.setEnabled(False)
-		self.btnPlot.setDisabled(True)
 		self.listWidget.setContextMenuPolicy(Qt.CustomContextMenu)
 		self.listWidget.itemClicked.connect(self.listItemRightClicked)
-		self.tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)
-		self.tableWidget.customContextMenuRequested.connect(self.tableItemRightClicked)
 		self.tableWidget.cellChanged.connect(self.cellchanged)
 		self.canvas.mpl_connect('button_press_event', self.onclick)
 		self.fname = ''
@@ -104,7 +103,6 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.scatter = 0
 		self.p1 = True
 		self.p2 = False
-		self.GaussFit= True
 		self.save2col = False
 		self.files=[]
 		self.decay=[]
@@ -433,6 +431,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 				if np.shape(params):
 					if int(params[1])+1>int(params[0]) or int(params[2])+1>int(params[0]) :
 						self.showWarning("Error", "bad column values")
+						logging.warning("New file : Bad column values")
 						return
 					else:
 						self.xCol= int(params[1])
@@ -444,12 +443,15 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 					DataIn = np.loadtxt(fname, skiprows=self.h, usecols=range(int(params[0])), delimiter=params[3]) #read a text file
 				except IOError :
 					self.showWarning('Error', 'Could not read the file')
+					logging.warning('New file : Could not read the file')
 					return
 				except IndexError:
 					self.showWarning('Error', 'Wrong delimiter')
+					logging.warning('New file : Wrong delimiter')
 					return
 				except ValueError:
 					self.showWarning('Error', 'Wrong nr of columns')
+					logging.warning('New file : Wrong number of columns')
 					return
 			self.fname = fname
 			self.setWindowTitle( ntpath.basename(fname)+ ' - Mass Spectrum Calibration - v2.001')
@@ -457,8 +459,6 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 
 		self.lastDrawn = 0
 		self.Calibration.calibrated = False
-		v1 = False
-		v2 = False
 		if len(self.Calibration.peaks['mass']):
 			self.relocatePeaks()
 		#draw everything
@@ -678,10 +678,9 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		print(self.Calibration.peaks['time'])
 		for i in np.arange(0, len(self.Calibration.peaks['time'])):
 			pos, intens, error = self.findPeak(self.data, self.Calibration.peaks['time'][i], Gfit = True, cursor = False )
-			print('Error: ', error)
 			if not error:
-				self.Calibration.peaks['time'][i] = pos
-				self.Calibration.peaks['intensity'][i] = intens
+				self.Calibration.peaks['time'].iloc[i] = pos
+				self.Calibration.peaks['intensity'].iloc[i] = intens
 				self.tableWidget.item(i, 0).setText("%.6f"%pos)
 				self.tableWidget.item(i, 0).setBackground(self.tableWidget.item(0,3).background())
 			else:
@@ -707,13 +706,11 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 				indexes = peakutils.indexes(dataY,thres = 0.2, min_dist =30)
 				Ypos = max(dataY[indexes])
 				idx = np.argwhere(dataY==Ypos)[0]
-				print("Index= ", idx)
 				if gfit:
 					Xpos = peakutils.interpolate(dataX, dataY, ind=idx)
 				else:
 					Xpos = dataX[idx]
 				shift = 100*abs(Xpos-x)/x
-				print(shift)
 				if shift>10:
 					error = True
 					Xpos = x
