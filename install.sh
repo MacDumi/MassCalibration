@@ -20,6 +20,9 @@
 		install -d ./imports $DATADIR/imports
 		install -m644 ./imports/* $DATADIR/imports/
 
+		install -d ./designs $DATADIR/designs
+		install -m644 ./designs/* $DATADIR/designs/
+
 		install -d ./logs $DATADIR/logs
 		install -m544 ./logs/* $DATADIR/logs/
 
