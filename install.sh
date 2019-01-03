@@ -21,7 +21,7 @@
 		install -m644 ./imports/* $DATADIR/imports/
 
 		install -d ./logs $DATADIR/logs
-		install -m644 ./logs/* $DATADIR/logs/
+		install -m544 ./logs/* $DATADIR/logs/
 
 		cd $STARTDIR/install
 		install -m755 * $DESKDIR/

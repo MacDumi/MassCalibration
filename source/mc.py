@@ -72,6 +72,8 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.config = self.ReadConfig()
 		self.setTheme()
 		self.listWidget.setContextMenuPolicy(Qt.CustomContextMenu)
+		self.tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)
+		self.tableWidget.customContextMenuRequested.connect(self.tableItemRightClicked)
 		self.listWidget.itemClicked.connect(self.listItemRightClicked)
 		self.tableWidget.cellChanged.connect(self.cellchanged)
 		self.fname = ''
@@ -430,6 +432,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 				self.plotPeaks()
 			except IOError:
 				self.showWarning('Error', 'Could not read the file')
+				self.lbStatus.setText("Calibration profile loaded")
 				logging.exception('Calibration : could not read the file')
 
 #save calibration profile
@@ -447,7 +450,8 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 				name = name+'.mz'
 			text = "Calibration coefficients\nhighest to lower power\n%.6g, %.6g, %.6g\n\nTime, Intensity, Mass, Formula" %(self.Calibration.coef[0], self.Calibration.coef[1], self.Calibration.coef[2])
 			np.savetxt(name, self.Calibration.peaks.values, header = text,fmt='%.4f,  %.1f, %.4f, %s')
-			logging.info("Calibration profile saved")
+			self.lbStatus.setText("Calibration profile saved")
+			logging.info("Calibration : calibration profile saved")
 
 #new file
 	def New( self):
@@ -504,7 +508,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 					logging.warning('New file : Wrong number of columns')
 					return
 			self.fname = fname
-			self.setWindowTitle( ntpath.basename(fname)+ ' - Mass Spectrum Calibration - v2.001')
+			self.setWindowTitle( ntpath.basename(fname)+ ' - Mass Spectrum Calibration - v2.3')
 			self.data.setData(DataIn[:, self.xCol], DataIn[:, self.yCol])
 
 		self.lastDrawn = 0
@@ -590,7 +594,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 	def about(self):
 		msg = QMessageBox()
 		msg.setIcon(QMessageBox.Information)
-		msg.setText("Version v2.2 Beta\nMade by CAT\nLille, 2018")
+		msg.setText("Version v2.3 Beta\nMade by CAT\nLille, 2019")
 		msg.setWindowTitle("About")
 		msg.setStandardButtons(QMessageBox.Ok)
 		msg.exec_()

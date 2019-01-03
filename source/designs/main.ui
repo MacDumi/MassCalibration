@@ -113,6 +113,16 @@
                 <property name="text">
                  <string>Load profile</string>
                 </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>designs/open.svg</normaloff>designs/open.svg</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>30</width>
+                  <height>30</height>
+                 </size>
+                </property>
                </widget>
               </item>
               <item>
@@ -120,12 +130,32 @@
                 <property name="text">
                  <string>Save profile</string>
                 </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>designs/save.svg</normaloff>designs/save.svg</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>30</width>
+                  <height>30</height>
+                 </size>
+                </property>
                </widget>
               </item>
               <item>
                <widget class="QPushButton" name="btn_removePeaks">
                 <property name="text">
                  <string>Remove all</string>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>designs/clear.svg</normaloff>designs/clear.svg</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>30</width>
+                  <height>30</height>
+                 </size>
                 </property>
                </widget>
               </item>
@@ -180,7 +210,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>add.svg</normaloff>add.svg</iconset>
+              <normaloff>designs/add.svg</normaloff>designs/add.svg</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -197,7 +227,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>arrow-up.svg</normaloff>arrow-up.svg</iconset>
+              <normaloff>designs/arrow-up.svg</normaloff>designs/arrow-up.svg</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -214,7 +244,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>arrow-down.svg</normaloff>arrow-down.svg</iconset>
+              <normaloff>designs/arrow-down.svg</normaloff>designs/arrow-down.svg</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -231,7 +261,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>remove.svg</normaloff>remove.svg</iconset>
+              <normaloff>designs/remove.svg</normaloff>designs/remove.svg</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -252,7 +282,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>plot.svg</normaloff>plot.svg</iconset>
+              <normaloff>designs/plot.svg</normaloff>designs/plot.svg</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -269,7 +299,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>clear.svg</normaloff>clear.svg</iconset>
+              <normaloff>designs/clear.svg</normaloff>designs/clear.svg</iconset>
             </property>
             <property name="iconSize">
              <size>
