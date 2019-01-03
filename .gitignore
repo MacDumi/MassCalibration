@@ -1,1 +1,5 @@
-source/logs/MC.log
+# Log files:
+*.log
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]

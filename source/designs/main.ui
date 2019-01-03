@@ -364,7 +364,7 @@
     <addaction name="actionRm_baseline"/>
     <addaction name="actionCrop"/>
     <addaction name="separator"/>
-    <addaction name="Reloadconfig"/>
+    <addaction name="actionReloadConfig"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -448,9 +448,9 @@
     <string>Ctrl+Shift+B</string>
    </property>
   </action>
-  <action name="Reloadconfig">
+  <action name="actionReloadConfig">
    <property name="text">
-    <string>&amp;Uncalibrate</string>
+    <string>Reload &amp;config</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+U</string>
@@ -495,7 +495,7 @@
   </action>
   <action name="actionCalibrate_formula">
    <property name="text">
-    <string>Calibrate (formula)</string>
+    <string>Calibrate (&amp;formula)</string>
    </property>
   </action>
  </widget>

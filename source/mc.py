@@ -50,12 +50,14 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.actionUncalibrate.triggered.connect(self.Uncalibrate)
 		self.actionCrop.triggered.connect(self.Crop)
 		self.actionCalibrate_formula.triggered.connect(self.CalibrateFormula)
+		self.actionQuit.triggered.connect(lambda: self.closeEvent(QCloseEvent))
+		self.actionCalibrate.triggered.connect(self.Calibrate)
+		self.actionReloadConfig.triggered.connect(self.ReloadConfig)
+
 		self.btn_removePeaks.clicked.connect(self.clearTable)
 		self.btn_saveCal.clicked.connect(self.saveCal)
 		self.btn_loadCal.clicked.connect(self.loadCal)
 		self.btCalibrate.clicked.connect(self.Calibrate)
-		self.actionCalibrate.triggered.connect(self.Calibrate)
-		self.actionQuit.triggered.connect(lambda: self.closeEvent(QCloseEvent))
 		self.btnAdd.clicked.connect(self.addFiles)
 		self.btnClear.clicked.connect(self.listClear)
 		self.btnPlot.clicked.connect(self.plotDecay)
@@ -68,34 +70,10 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.resized.connect(self.onResize)
 
 		self.config = self.ReadConfig()
-		self.figure = plt.figure(edgecolor=self.fg_col, facecolor=self.bg_col)
-		self.subplot = self.figure.add_subplot(111,facecolor=self.bg_col) #add a subfigure
-		self.subplot.spines['bottom'].set_color(self.fg_col)
-		self.subplot.spines['left'].set_color(self.fg_col)
-		self.subplot.patch.set_facecolor(self.bg_col)
-		self.subplot.xaxis.set_tick_params(color=self.fg_col, labelcolor=self.fg_col)
-		self.subplot.yaxis.set_tick_params(color=self.fg_col, labelcolor=self.fg_col)
-		self.canvas = FigureCanvas(self.figure)
-		self.canvas.setFocusPolicy(Qt.ClickFocus )
-		self.canvas.setFocus()
-		self.toolbar = NavigationToolbar(self.canvas, self)
-		self.gridLayout_3.addWidget(self.canvas)
-		self.gridLayout_3.addWidget(self.toolbar)
-		self.figure_1 = plt.figure(edgecolor=self.fg_col, facecolor=self.bg_col)
-		self.subplot_1 = self.figure_1.add_subplot(111,facecolor=self.bg_col) #add a subfigure
-		self.subplot_1.spines['bottom'].set_color(self.fg_col)
-		self.subplot_1.spines['left'].set_color(self.fg_col)
-		self.subplot_1.patch.set_facecolor(self.bg_col)
-		self.subplot_1.xaxis.set_tick_params(color=self.fg_col, labelcolor=self.fg_col)
-		self.subplot_1.yaxis.set_tick_params(color=self.fg_col, labelcolor=self.fg_col)
-		self.canvas_1 = FigureCanvas(self.figure_1)
-		self.toolbar_1 = NavigationToolbar(self.canvas_1, self)
-		self.gridLayout_4.addWidget(self.canvas_1)
-		self.gridLayout_4.addWidget(self.toolbar_1)
+		self.setTheme()
 		self.listWidget.setContextMenuPolicy(Qt.CustomContextMenu)
 		self.listWidget.itemClicked.connect(self.listItemRightClicked)
 		self.tableWidget.cellChanged.connect(self.cellchanged)
-		self.canvas.mpl_connect('button_press_event', self.onclick)
 		self.fname = ''
 		self.lastDrawn=0
 		self.data = Data()
@@ -116,6 +94,37 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		matplotlib.rcParams.update({'font.size': self.fontSize})
 		self.New()
 
+	def setTheme (self):
+		#calibration
+		self.figure = plt.figure(edgecolor=self.fg_col, facecolor=self.bg_col)
+		self.subplot = self.figure.add_subplot(111,facecolor=self.bg_col) #add a subfigure
+		self.subplot.spines['bottom'].set_color(self.fg_col)
+		self.subplot.spines['left'].set_color(self.fg_col)
+		self.subplot.patch.set_facecolor(self.bg_col)
+		self.subplot.xaxis.set_tick_params(color=self.fg_col, labelcolor=self.fg_col)
+		self.subplot.yaxis.set_tick_params(color=self.fg_col, labelcolor=self.fg_col)
+		#decay
+		self.figure_1 = plt.figure(edgecolor=self.fg_col, facecolor=self.bg_col)
+		self.subplot_1 = self.figure_1.add_subplot(111,facecolor=self.bg_col) #add a subfigure
+		self.subplot_1.spines['bottom'].set_color(self.fg_col)
+		self.subplot_1.spines['left'].set_color(self.fg_col)
+		self.subplot_1.patch.set_facecolor(self.bg_col)
+		self.subplot_1.xaxis.set_tick_params(color=self.fg_col, labelcolor=self.fg_col)
+		self.subplot_1.yaxis.set_tick_params(color=self.fg_col, labelcolor=self.fg_col)
+		#add widget
+		self.canvas = FigureCanvas(self.figure)
+		self.canvas.setFocusPolicy(Qt.ClickFocus )
+		self.canvas.setFocus()
+		self.toolbar = NavigationToolbar(self.canvas, self)
+		self.gridLayout_3.addWidget(self.canvas)
+		self.gridLayout_3.addWidget(self.toolbar)
+		self.canvas_1 = FigureCanvas(self.figure_1)
+		self.toolbar_1 = NavigationToolbar(self.canvas_1, self)
+		self.gridLayout_4.addWidget(self.canvas_1)
+		self.gridLayout_4.addWidget(self.toolbar_1)
+		self.canvas.mpl_connect('button_press_event', self.onclick)
+
+
 	def resizeEvent(self, event):
 		self.resized.emit()
 		return super(MassCalibration, self).resizeEvent(event)
@@ -123,6 +132,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 	def onResize(self):
 		#tight layout on resize
 		self.figure.tight_layout()
+		self.figure_1.tight_layout()
 
 
 	def closeEvent(self,event):
@@ -137,22 +147,49 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 
 	def ReadConfig(self):
 		config = configparser.ConfigParser()
-		try:
-			config.read(os.path.expanduser('~')+'/.config/masscalibration/config.ini')
-		except:
-			config.read(os.path.dirname(sys.argv[0]) +'/config/config.ini')
-		self.h=int(config['DEFAULT']['header'])
-		self.initialDir=config['DEFAULT']['path']
-		self.yCol=int(config['DEFAULT']['y'])
-		self.xCol=int(config['DEFAULT']['x'])
-		self.inversed=bool(config['DEFAULT']['inversed'])
-		if bool(int(config['DEFAULT']['dark'])):
+		path = os.path.dirname(sys.argv[0]) + '/config/config.ini'
+		if sys.platform.startswith('darwin') or os.name == 'posix':
+			res = config.read(os.path.expanduser('~')+'/.config/masscalibration/config.ini')
+			if res == []:
+				res == config.read(path)
+				logging.warning('Configuration : config file not found in the home directory')
+		else:
+			res = config.read(path)
+
+		if res!=[]:
+			self.h=int(config['DEFAULT']['header'])
+			self.initialDir=config['DEFAULT']['path']
+			self.yCol=int(config['DEFAULT']['y'])
+			self.xCol=int(config['DEFAULT']['x'])
+			self.inversed=bool(int(config['DEFAULT']['inversed']))
+			if bool(int(config['DEFAULT']['dark'])):
+				self.fg_col = 'white'
+				self.bg_col = 'black'
+			else:
+				self.fg_col = 'black'
+				self.bg_col = 'white'
+		else:
+			self.showWarning('Error', 'Could not find the configuration file.\nLoading defaults')
+			logging.warning('Configuration : Could not find the configuration file')
+			self.h=10
+			self.initialDir=os.path.dirname(sys.argv[0])
+			self.yCol=2
+			self.xCol=0
+			self.inversed=False
 			self.fg_col = 'white'
 			self.bg_col = 'black'
-		else:
-			self.fg_col = 'black'
-			self.bg_col = 'white'
 		return config
+
+	def ReloadConfig(self):
+		self.config = self.ReadConfig()
+		self.gridLayout_3.removeWidget(self.canvas)
+		self.gridLayout_4.removeWidget(self.canvas_1)
+		self.gridLayout_3.removeWidget(self.toolbar)
+		self.gridLayout_4.removeWidget(self.toolbar_1)
+		self.setTheme()
+		self.Plot()
+		self.lbStatus.setText("Configuration reloaded")
+		logging.info("Configuration : configuration reloaded")
 
 	def rmBaseline(self):
 		baseline = peakutils.baseline(self.data.Y)
@@ -354,7 +391,6 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 			logging.warning("Calibration : no calibration found")
 
 
-
 #load calibration file
 	def loadCal(self):
 		path = self.initialDir
@@ -394,6 +430,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 				self.plotPeaks()
 			except IOError:
 				self.showWarning('Error', 'Could not read the file')
+				logging.exception('Calibration : could not read the file')
 
 #save calibration profile
 	def saveCal(self):
@@ -573,7 +610,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		if self.Calibration.calibrated:
 			if self.inversed:	#plot the inversed data
 				self.subplot.plot(self.data.M , self.data.max-self.data.Y[self.data.zero:])
-				self.subplot.set_ylim([0.9*self.data.max,  self.data.max-self.data.min])
+				self.subplot.set_ylim([1.1*self.data.max,  self.data.max-self.data.min])
 			else:
 				self.subplot.plot(self.data.M , self.data.Y[self.data.zero:])
 				self.subplot.set_ylim([self.data.min, 1.1 * self.data.max])
@@ -585,7 +622,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		else:
 			if self.inversed:	#plot the inversed data
 				self.subplot.plot(self.data.X , self.data.max-self.data.Y)
-				self.subplot.set_ylim([0.9*self.data.max,  self.data.max-self.data.min])
+				self.subplot.set_ylim([1.1*self.data.max,  self.data.max-self.data.min])
 			else:
 				self.subplot.plot(self.data.X , self.data.Y)
 				self.subplot.set_ylim([self.data.min, 1.1 * self.data.max])
@@ -738,10 +775,6 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 				error = True
 		if not error:
 			self.lbStatus.setText("Peak added at: %f" % Xpos)
-		#if (self.dwTime>(-1)):
-			#self.subplot.lines.remove(self.cursor)
-		self.dwTime = tm.time()
-		#self.cursor, = self.subplot.plot([Xpos, Xpos], [self.min, self.max], 'r', gid = self.dwTime)
 		return Xpos, Ypos, error
 
 #right click on the plot
@@ -760,8 +793,6 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 			self.listMenu.move(cursor.pos() )
 			self.listMenu.show()
 
-	def cleanUp(self):
-		print('closing')
 
 app = None
 
@@ -771,7 +802,6 @@ def main():
 
 	form = MassCalibration()
 	form.show()
-	app.aboutToQuit.connect(lambda: form.cleanUp)
 	app.exec()
 
 
