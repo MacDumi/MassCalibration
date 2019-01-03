@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'designs/main.ui'
+# Form implementation generated from reading ui file 'designss/main.ui'
 #
 # Created by: PyQt5 UI code generator 5.11.3
 #
@@ -114,7 +114,7 @@ class Ui_MainWindow(object):
         self.btnAdd.setSizePolicy(sizePolicy)
         self.btnAdd.setText("")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("add.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap("designs/add.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btnAdd.setIcon(icon1)
         self.btnAdd.setIconSize(QtCore.QSize(30, 30))
         self.btnAdd.setObjectName("btnAdd")
@@ -122,7 +122,7 @@ class Ui_MainWindow(object):
         self.pushButton_2 = QtWidgets.QPushButton(self.tab_4)
         self.pushButton_2.setText("")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("arrow-up.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon2.addPixmap(QtGui.QPixmap("designs/arrow-up.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.pushButton_2.setIcon(icon2)
         self.pushButton_2.setIconSize(QtCore.QSize(30, 30))
         self.pushButton_2.setObjectName("pushButton_2")
@@ -130,7 +130,7 @@ class Ui_MainWindow(object):
         self.pushButton = QtWidgets.QPushButton(self.tab_4)
         self.pushButton.setText("")
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("arrow-down.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon3.addPixmap(QtGui.QPixmap("designs/arrow-down.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.pushButton.setIcon(icon3)
         self.pushButton.setIconSize(QtCore.QSize(30, 30))
         self.pushButton.setObjectName("pushButton")
@@ -138,7 +138,7 @@ class Ui_MainWindow(object):
         self.pushButton_3 = QtWidgets.QPushButton(self.tab_4)
         self.pushButton_3.setText("")
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap("remove.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon4.addPixmap(QtGui.QPixmap("designs/remove.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.pushButton_3.setIcon(icon4)
         self.pushButton_3.setIconSize(QtCore.QSize(30, 30))
         self.pushButton_3.setObjectName("pushButton_3")
@@ -148,14 +148,14 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.btnPlot = QtWidgets.QPushButton(self.tab_4)
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap("plot.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon5.addPixmap(QtGui.QPixmap("designs/plot.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btnPlot.setIcon(icon5)
         self.btnPlot.setIconSize(QtCore.QSize(30, 30))
         self.btnPlot.setObjectName("btnPlot")
         self.horizontalLayout_2.addWidget(self.btnPlot)
         self.btnClear = QtWidgets.QPushButton(self.tab_4)
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap("clear.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon6.addPixmap(QtGui.QPixmap("designs/clear.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btnClear.setIcon(icon6)
         self.btnClear.setIconSize(QtCore.QSize(28, 28))
         self.btnClear.setObjectName("btnClear")
