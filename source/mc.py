@@ -18,7 +18,7 @@ import math as mt
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QApplication, QListWidget, QListWidgetItem
+from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QApplication, QListWidget, QListWidgetItem, QAction
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
 from imports.zoom import *
@@ -38,6 +38,46 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 	def __init__(self):
 		super(MassCalibration, self).__init__()
 		self.setupUi(self)
+		#toolbar
+		self.tb = self.addToolBar("File")
+		new = QAction(QIcon("designs/new.png"),"New",self)
+		save = QAction(QIcon("designs/save.png"),"Save",self)
+		saveAs = QAction(QIcon("designs/saveAs.png"),"Save as npz",self)
+		crop = QAction(QIcon("designs/crop.png"),"Crop",self)
+		baseline = QAction(QIcon("designs/baseline.png"),"Remove baseline",self)
+		loadCal = QAction(QIcon("designs/open.png"),"Load calibration",self)
+		saveCal = QAction(QIcon("designs/export.png"),"Save calibration",self)
+		cal = QAction(QIcon("designs/plot.png"),"Calibrate",self)
+		cal_formula = QAction(QIcon("designs/plot_math.png"),"Calibrate (formula)",self)
+		uncal = QAction(QIcon("designs/plot_remove.png"),"Uncalibrate",self)
+		removeAll = QAction(QIcon("designs/remove.png"),"Remove all calibration peaks",self)
+		self.tb.addAction(new)
+		self.tb.addAction(save)
+		self.tb.addAction(saveAs)
+		self.tb.addSeparator()
+		self.tb.addAction(crop)
+		self.tb.addAction(baseline)
+		self.tb.addSeparator()
+		self.tb.addAction(loadCal)
+		self.tb.addAction(saveCal)
+		self.tb.addAction(cal)
+		self.tb.addAction(cal_formula)
+		self.tb.addAction(uncal)
+		self.tb.addAction(removeAll)
+		self.tb.addSeparator()
+		new.triggered.connect(self.New)
+		save.triggered.connect(self.Save)
+		saveAs.triggered.connect(self.SaveAs)
+		crop.triggered.connect(self.Crop)
+		baseline.triggered.connect(self.rmBaseline)
+		loadCal.triggered.connect(self.loadCal)
+		saveCal.triggered.connect(self.saveCal)
+		cal.triggered.connect(self.Calibrate)
+		cal_formula.triggered.connect(self.CalibrateFormula)
+		uncal.triggered.connect(self.Uncalibrate)
+		removeAll.triggered.connect(self.clearTable)
+		self.tb.toggleViewAction().setChecked(True)
+
 		#connect to UI
 		self.actionNew.triggered.connect(self.New)
 		self.actionAbout.triggered.connect(self.about)
@@ -53,11 +93,8 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.actionQuit.triggered.connect(lambda: self.closeEvent(QCloseEvent))
 		self.actionCalibrate.triggered.connect(self.Calibrate)
 		self.actionReloadConfig.triggered.connect(self.ReloadConfig)
+		self.actionShow_toolbar.triggered.connect(self.tb.toggleViewAction().trigger)
 
-		self.btn_removePeaks.clicked.connect(self.clearTable)
-		self.btn_saveCal.clicked.connect(self.saveCal)
-		self.btn_loadCal.clicked.connect(self.loadCal)
-		self.btCalibrate.clicked.connect(self.Calibrate)
 		self.btnAdd.clicked.connect(self.addFiles)
 		self.btnClear.clicked.connect(self.listClear)
 		self.btnPlot.clicked.connect(self.plotDecay)
@@ -126,6 +163,8 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.gridLayout_4.addWidget(self.toolbar_1)
 		self.canvas.mpl_connect('button_press_event', self.onclick)
 
+	def toolbtnpressed(self,a):
+		print( "pressed tool button is",a.text())
 
 	def resizeEvent(self, event):
 		self.resized.emit()
