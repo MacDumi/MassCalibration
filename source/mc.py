@@ -693,14 +693,15 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 			self.scatter=0
 			self.canvas.draw()
 
-	def menuPeak(self,x, **kwargs):
+	def menuPeak(self, x, **kwargs):
 		mass = -1
 		text = '--'
 		if self.Calibration.calibrated:
-			mass = x
-			x = np.interp(mass, self.data.M, self.data.X)
-			text = str(mass)
+			x = np.interp(x, self.data.M, self.data.X)
 		pos, intens, error = self.findPeak(self.data, x, **kwargs)
+		if self.Calibration.calibrated:
+			mass =  np.interp(pos, self.data.X, self.data.M)[0]
+			text = '%.4f' %mass
 		if not error:
 			self.Calibration.addPeak([pos, intens, mass, '--'])
 			rowPosition = self.tableWidget.rowCount()
