@@ -50,7 +50,6 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		cal = QAction(QIcon("designs/plot.png"),"Calibrate",self)
 		cal_formula = QAction(QIcon("designs/plot_math.png"),"Calibrate (formula)",self)
 		uncal = QAction(QIcon("designs/plot_remove.png"),"Uncalibrate",self)
-		removeAll = QAction(QIcon("designs/remove.png"),"Remove all calibration peaks",self)
 		self.tb.addAction(new)
 		self.tb.addAction(save)
 		self.tb.addAction(saveAs)
@@ -63,7 +62,6 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.tb.addAction(cal)
 		self.tb.addAction(cal_formula)
 		self.tb.addAction(uncal)
-		self.tb.addAction(removeAll)
 		self.tb.addSeparator()
 		new.triggered.connect(self.New)
 		save.triggered.connect(self.Save)
@@ -75,7 +73,6 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		cal.triggered.connect(self.Calibrate)
 		cal_formula.triggered.connect(self.CalibrateFormula)
 		uncal.triggered.connect(self.Uncalibrate)
-		removeAll.triggered.connect(self.clearTable)
 		self.tb.toggleViewAction().setChecked(True)
 
 		#connect to UI
@@ -700,7 +697,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 			x = np.interp(x, self.data.M, self.data.X)
 		pos, intens, error = self.findPeak(self.data, x, **kwargs)
 		if self.Calibration.calibrated:
-			mass =  np.interp(pos, self.data.X, self.data.M)[0]
+			mass =	np.interp(pos, self.data.X, self.data.M)[0]
 			text = '%.4f' %mass
 		if not error:
 			self.Calibration.addPeak([pos, intens, mass, '--'])
@@ -714,8 +711,11 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 
 	def tableItemRightClicked(self, QPos):
 		self.listMenu= QtWidgets.QMenu()
-		menu_item_1 = self.listMenu.addAction("Remove")
-		menu_item_1.triggered.connect( self.menuRemoveRow)
+		menu_item_0 = self.listMenu.addAction("Remove")
+		self.listMenu.addSeparator()
+		menu_item_1 = self.listMenu.addAction("Remove All")
+		menu_item_0.triggered.connect( self.menuRemoveRow)
+		menu_item_1.triggered.connect( self.clearTable)
 		parentPosition = self.tableWidget.mapToGlobal(QPoint(0, 0))
 		self.listMenu.move(parentPosition + QPos)
 		self.listMenu.show()
