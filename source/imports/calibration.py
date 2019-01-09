@@ -50,7 +50,9 @@ class Calibration:
 		self.error = []
 		print(self.calibration(self.peaks['time'].values))
 		for time in self.peaks['time']:
-			self.error = np.append(self.error, self.peaks['mass'].values[self.peaks['time'].values==time[0]][0] -self.calibration(time[0]))
+			ME = self.peaks['mass'].values[self.peaks['time'].values==time[0]][0]
+			MM = self.calibration(time[0])
+			self.error = np.append(self.error, 1e6*(MM-ME)/ME)
 		return self.error
 
 	def inMass(self, time):

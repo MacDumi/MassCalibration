@@ -484,8 +484,8 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		else:
 			if name[-3:]!='.mz':
 				name = name+'.mz'
-			text = "Calibration coefficients\nhighest to lower power\n%.6g, %.6g, %.6g\n\nTime, Intensity, Mass, Formula" %(self.Calibration.coef[0], self.Calibration.coef[1], self.Calibration.coef[2])
-			np.savetxt(name, self.Calibration.peaks.values, header = text,fmt='%.4f,  %.1f, %.4f, %s')
+			text = "Calibration coefficients\nhighest to lower power\n%.6g, %.6g, %.6g\n\nTime, Intensity, Mass, Formula, Error (ppm)" %(self.Calibration.coef[0], self.Calibration.coef[1], self.Calibration.coef[2])
+			np.savetxt(name, np.column_stack((self.Calibration.peaks.values, self.Calibration.error)), header = text,fmt='%.4f,  %.1f, %.4f, %s, %.2f')
 			self.lbStatus.setText("Calibration profile saved")
 			logging.info("Calibration : calibration profile saved")
 
@@ -697,7 +697,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 			x = np.interp(x, self.data.M, self.data.X)
 		pos, intens, error = self.findPeak(self.data, x, **kwargs)
 		if self.Calibration.calibrated:
-			mass =	np.interp(pos, self.data.X, self.data.M)[0]
+			mass =	np.interp(pos, self.data.X, self.data.M)
 			text = '%.4f' %mass
 		if not error:
 			self.Calibration.addPeak([pos, intens, mass, '--'])

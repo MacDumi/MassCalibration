@@ -255,7 +255,7 @@ class Ui_MainWindow(object):
         item = self.tableWidget.horizontalHeaderItem(2)
         item.setText(_translate("MainWindow", "Formula"))
         item = self.tableWidget.horizontalHeaderItem(3)
-        item.setText(_translate("MainWindow", "Error"))
+        item.setText(_translate("MainWindow", "Error (ppm)"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Mass Calibration"))
         self.btnPlot.setText(_translate("MainWindow", "Plot the decay "))
         self.btnClear.setText(_translate("MainWindow", "Clear All"))
