@@ -103,6 +103,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 
 		self.resized.connect(self.onResize)
 
+		self.scale = 1.5
 		self.config = self.ReadConfig()
 		self.setTheme()
 		self.listWidget.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -122,10 +123,6 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.files=[]
 		self.decay=[]
 		self.dwTime = -1
-		self.scale = 1.5
-		self.zp = ZoomPan()
-		figZoom = self.zp.zoom_factory(self.subplot, base_scale = self.scale)
-		figPan = self.zp.pan_factory(self.subplot)
 		self.fontSize = int(self.config['DEFAULT']['fontSize'])
 		matplotlib.rcParams.update({'font.size': self.fontSize})
 		self.New()
@@ -159,6 +156,9 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.gridLayout_4.addWidget(self.canvas_1)
 		self.gridLayout_4.addWidget(self.toolbar_1)
 		self.canvas.mpl_connect('button_press_event', self.onclick)
+		self.zp = ZoomPan()
+		figZoom = self.zp.zoom_factory(self.subplot, base_scale = self.scale)
+		figPan = self.zp.pan_factory(self.subplot)
 
 	def toolbtnpressed(self,a):
 		print( "pressed tool button is",a.text())
@@ -228,6 +228,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.Plot()
 		self.lbStatus.setText("Configuration reloaded")
 		logging.info("Configuration : configuration reloaded")
+		self.figure.tight_layout()
 
 	def rmBaseline(self):
 		baseline = peakutils.baseline(self.data.Y)
