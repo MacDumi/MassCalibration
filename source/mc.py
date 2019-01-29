@@ -722,9 +722,6 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		self.listMenu.show()
 
 	def clearTable(self):
-		if self.Calibration.calibrated:
-			self.Uncalibrate()
-		self.Calibration.clear()
 		while self.tableWidget.rowCount()!=0:
 			self.tableWidget.removeRow(0)
 		self.removeScatter()
