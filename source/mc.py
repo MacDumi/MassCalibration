@@ -446,6 +446,9 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 					par = par[1:]
 				calibr = np.fromstring(par, dtype=float, sep=',')
 				print(calibr)
+				if self.Calibration.calibrated:
+					self.Uncalibrate()
+				self.Calibration.clear()
 				self.clearTable()
 				self.Calibration.setCalibration(calibr)
 				self.coef = np.asarray(['%.5g'%n for n in calibr])
