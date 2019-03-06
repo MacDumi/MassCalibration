@@ -160,9 +160,6 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
 		figZoom = self.zp.zoom_factory(self.subplot, base_scale = self.scale)
 		figPan = self.zp.pan_factory(self.subplot)
 
-	def toolbtnpressed(self,a):
-		print( "pressed tool button is",a.text())
-
 	def resizeEvent(self, event):
 		self.resized.emit()
 		return super(MassCalibration, self).resizeEvent(event)
