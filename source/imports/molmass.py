@@ -801,6 +801,9 @@ def from_string(formula, groups=None):
 
     # Deuterium
     formula = re.sub('(D)(?![a-z])', '[2H]', formula)
+    
+    # Tritium
+    formula = re.sub('(T)(?![a-z])', '[3H]', formula)
 
     # arithmetic
     formula = formula.replace('.', '+')
