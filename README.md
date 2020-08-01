@@ -37,7 +37,7 @@ To calibrate a mass spectrum:
 	* When the peaklist is complete you can calibrate your spectrum with it: (**C-r**) or Calibration->Calibrate. The error in ppm will be calculated for each mass peak and the calibration equation will be displayed on top of the peaklist.
 	* To go back to the time-of-flight spectrum choose **Calibration->Uncalibrate** or (**C-S-r**).
 
-You can save mass calibration profiles by choosing **Edit->Calibration**.
+You can save a mass calibration profiles by choosing **Edit->Calibration**.
 If a peaklist is present when a new spectrum is loaded, the software will attempt to locate the peaks on in the new spectrum thus allowing the user to immediately calibrate. In case the algorithm fails to find one or several peaks they will be marked in red. The user should remove them or manually locate them on the spectrum.
 
 ### Zoom:
