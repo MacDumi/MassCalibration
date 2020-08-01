@@ -7,22 +7,22 @@ import struct
 def readTrc( fName ):
     """
         Parameters
-        -----------       
+        -----------
         fName = filename of the .trc file
-        
+
         Returns
-        -----------       
+        -----------
         x: array with sample times [s],
-        
+
         y: array with sample  values [V],
-        
+
         d: dictionary with metadata
 
     """
     with open(fName, "rb") as fid:
         data = fid.read(50).decode()
         wdOffset = data.find('WAVEDESC')
-        
+
         #------------------------
         # Get binary format / endianess
         #------------------------
@@ -34,7 +34,7 @@ def readTrc( fName ):
             endi = "<"
         else:
             endi = ">"
-            
+
         #------------------------
         # Get length of blocks and arrays:
         #------------------------
@@ -46,16 +46,16 @@ def readTrc( fName ):
         lWAVE_ARRAY_2    = readX( fid, endi+"l", wdOffset + 64 )
 
         d = dict()  #Will store all the extracted Metadata
-        
+
         #------------------------
         # Get Instrument info
         #------------------------
         d["INSTRUMENT_NAME"]  = readX( fid, "16s",    wdOffset + 76 ).decode().split('\x00')[0]
         d["INSTRUMENT_NUMBER"]= readX( fid, endi+"l", wdOffset + 92 )
         d["TRACE_LABEL"]      = readX( fid, "16s",    wdOffset + 96 ).decode().split('\x00')[0]
-        
+
         #------------------------
-        # Get Waveform info      
+        # Get Waveform info
         #------------------------
         d["WAVE_ARRAY_COUNT"] = readX( fid, endi+"l", wdOffset +116 )
         d["PNTS_PER_SCREEN"]  = readX( fid, endi+"l", wdOffset +120 )
@@ -69,13 +69,13 @@ def readTrc( fName ):
         d["POINTS_PER_PAIR"]  = readX( fid, endi+"h", wdOffset +152 )
         d["PAIR_OFFSET"]      = readX( fid, endi+"h", wdOffset +154 )
         d["VERTICAL_GAIN"]    = readX( fid, endi+"f", wdOffset +156 ) #to get floating values from raw data :
-        d["VERTICAL_OFFSET"]  = readX( fid, endi+"f", wdOffset +160 ) #VERTICAL_GAIN * data - VERTICAL_OFFSET 
+        d["VERTICAL_OFFSET"]  = readX( fid, endi+"f", wdOffset +160 ) #VERTICAL_GAIN * data - VERTICAL_OFFSET
         d["MAX_VALUE"]        = readX( fid, endi+"f", wdOffset +164 )
         d["MIN_VALUE"]        = readX( fid, endi+"f", wdOffset +168 )
         d["NOMINAL_BITS"]     = readX( fid, endi+"h", wdOffset +172 )
         d["NOM_SUBARRAY_COUNT"]= readX( fid, endi+"h",wdOffset +174 )
-        d["HORIZ_INTERVAL"]   = readX( fid, endi+"f", wdOffset +176 ) #sampling interval for time domain waveforms 
-        d["HORIZ_OFFSET"]     = readX( fid, endi+"d", wdOffset +180 ) #trigger offset for the first sweep of the trigger, seconds between the trigger and the first data point 
+        d["HORIZ_INTERVAL"]   = readX( fid, endi+"f", wdOffset +176 ) #sampling interval for time domain waveforms
+        d["HORIZ_OFFSET"]     = readX( fid, endi+"d", wdOffset +180 ) #trigger offset for the first sweep of the trigger, seconds between the trigger and the first data point
         d["PIXEL_OFFSET"]     = readX( fid, endi+"d", wdOffset +188 )
         d["VERTUNIT"]         = readX( fid, "48s", wdOffset +196 ).decode().split('\x00')[0]
         d["HORUNIT"]          = readX( fid, "48s", wdOffset +244 ).decode().split('\x00')[0]

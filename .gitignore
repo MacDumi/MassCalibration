@@ -11,3 +11,7 @@ MassCalibration.desktop
 # Misc
 cde/
 cde*
+#Virtual environment
+bin/
+lib/
+pyvenv.cfg
