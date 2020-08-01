@@ -1,8 +1,11 @@
 # MassCalibration
-This software is designed to calibrate a time of flight mass spectrum and retrieve the variation of the signal intensity of a specific peak in a set of spectra. 
+This software is designed to calibrate time of flight mass spectra. 
+![Screenshot](/screenshots/MassCalibration.png)
 
 ## Dependencies:
-Pyqt5, matplotlib, numpy, pandas, peakutils, configparser
+To install all the required packages run the following command:
+
+    $ pip install -r requirements.txt
 
 ## Usage:
 
