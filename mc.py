@@ -799,6 +799,8 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
                 if not cursor:
                         try:
                                 indexes = peakutils.indexes(dataY,thres = 0.2, min_dist =30)
+                                if len(indexes)<1:
+                                    indexes = peakutils.indexes(dataY,thres = 0.1, min_dist = 20)
                                 Ypos = max(dataY[indexes])
                                 idx = np.argwhere(dataY==Ypos)[0]
                                 if gfit:
@@ -811,7 +813,7 @@ class MassCalibration (QtWidgets.QMainWindow, main.Ui_MainWindow):
                                         Xpos = x
                                         self.lbStatus.setText("Failed to find a peak")
                                         logging.warning("Failed to find a peak")
-                        except RuntimeError:
+                        except (RuntimeError, ValueError):
                                 self.lbStatus.setText("Failed to find a peak")
                                 logging.exception("Failed to find a peak")
                                 error = True
