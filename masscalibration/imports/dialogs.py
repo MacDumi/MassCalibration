@@ -1,9 +1,9 @@
 from PyQt5.QtGui import *
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
-import crop_dialog
-import save_dialog
-import dialog
+import layouts.crop_dialog as crop_dialog
+import layouts.save_dialog as save_dialog
+import layouts.dialog as dialog
 import numpy as np
 "Crop dialog"
 class CropDialog (QtWidgets.QDialog, crop_dialog.Ui_Dialog):
@@ -39,7 +39,6 @@ class ImportDialog (QtWidgets.QDialog, dialog.Ui_Dialog):
 
         def other(self):
                 temp = self.comboBox.currentIndex()
-                print(temp)
                 if temp == 4 :
                         self.lineEdit.setEnabled(True)
                         self.lineEdit.setPlaceholderText("specify")
@@ -48,19 +47,16 @@ class ImportDialog (QtWidgets.QDialog, dialog.Ui_Dialog):
                         self.lineEdit.setPlaceholderText(" ")
 
         def getData(self):
-                delimiters = [' ', ' ', ',', '|']
-                param = self.spinBox.value()
-                param = np.append(param, self.spinBox_2.value())
-                param = np.append(param, self.spinBox_3.value())
+                delimiters = ['\t', ' ', ',', '|']
+                param = [self.spinBox.value()]
+                param += [self.spinBox_2.value()]
+                param += [self.spinBox_3.value()]
                 if self.comboBox.currentIndex() == 4 :
                         delim = self.lineEdit.text()
                 else:
                         delim = delimiters[self.comboBox.currentIndex()]
-                param = np.append(param, delim)
-                if self.checkBox.isChecked():
-                        param = np.append(param, 1)
-                else:
-                        param = np.append(param, 0)
+                param += [delim]
+                param += [self.checkBox.isChecked()]
 
                 return param
 """Save Dialog"""
@@ -73,7 +69,6 @@ class SaveDialog (QtWidgets.QDialog, save_dialog.Ui_Dialog):
 
         def other(self):
                 temp = self.comboBox.currentIndex()
-                print(temp)
                 if temp == 4 :
                         self.lineEdit.setEnabled(True)
                         self.lineEdit.setPlaceholderText("specify")
@@ -82,15 +77,12 @@ class SaveDialog (QtWidgets.QDialog, save_dialog.Ui_Dialog):
                         self.lineEdit.setPlaceholderText(" ")
 
         def getData(self):
-                delimiters = [' ', ' ', ',', '|']
+                delimiters = ['\t', ' ', ',', '|']
                 if self.comboBox.currentIndex() == 4 :
-                        param = self.lineEdit.text()
+                        param = [self.lineEdit.text()]
                 else:
-                        param = delimiters[self.comboBox.currentIndex()]
-                if self.checkBox.isChecked():
-                        param = np.append(param, 1)
-                else:
-                        param = np.append(param, 0)
+                        param = [delimiters[self.comboBox.currentIndex()]]
+                param += [self.checkBox.isChecked()]
                 return param
 
 
