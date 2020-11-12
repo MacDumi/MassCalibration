@@ -1,3 +1,4 @@
+import numpy as np
 
 class ZoomPan:
         def __init__(self):
@@ -48,30 +49,44 @@ class ZoomPan:
                         relx = (cur_xlim[1] - xdata)/(cur_xlim[1] - cur_xlim[0])
                         rely = (cur_ylim[1] - ydata)/(cur_ylim[1] - cur_ylim[0])
 
-                        if(self.xzoom):
-                                ax.set_xlim([xdata - new_width * (1-relx), xdata + new_width * (relx)])
-                        if(self.yzoom):
-                                ax.set_ylim([ydata - new_height * (1-rely), ydata + new_height * (rely)])
+                        lim = [xdata - new_width * (1-relx), xdata + new_width * (relx)]
+                        ax.set_xlim(lim)
+
+                        #Get the line
+                        try:
+                            line = ax.lines[0]
+                            data = [line.get_xdata(), line.get_ydata()]
+                            idx_0 = np.where(data[0][:] >= lim[0])[0][0]
+                            idx_1 = np.where(data[0][:] >= lim[1])[0][0]
+                            limits = [data[1][idx_0:idx_1].min()*0.9, data[1][idx_0:idx_1].max()*1.1]
+                            ax.set_ylim(limits)
+                        except IndexError:
+                            pass
+
+                        # if(self.xzoom):
+                        #         ax.set_xlim([xdata - new_width * (1-relx), xdata + new_width * (relx)])
+                        # if(self.yzoom):
+                        #         ax.set_ylim([ydata - new_height * (1-rely), ydata + new_height * (rely)])
                         ax.figure.canvas.draw()
                         ax.figure.canvas.flush_events()
 
-                def onKeyPress(event):
-                        if event.key == 'control':
-                                self.xzoom = True
-                                self.yzoom = False
-                        if event.key == 'shift':
-                                self.xzoom = False
-                                self.yzoom = True
+#                 def onKeyPress(event):
+#                         if event.key == 'control':
+#                                 self.xzoom = True
+#                                 self.yzoom = False
+#                         if event.key == 'shift':
+#                                 self.xzoom = False
+#                                 self.yzoom = True
 
-                def onKeyRelease(event):
-                        self.xzoom = True
-                        self.yzoom = True
+#                 def onKeyRelease(event):
+#                         self.xzoom = True
+                        # self.yzoom = True
 
                 fig = ax.get_figure() # get the figure of interest
 
                 self.cidScroll = fig.canvas.mpl_connect('scroll_event', zoom)
-                self.cidKeyP = fig.canvas.mpl_connect('key_press_event',onKeyPress)
-                self.cidKeyR = fig.canvas.mpl_connect('key_release_event',onKeyRelease)
+                # self.cidKeyP = fig.canvas.mpl_connect('key_press_event',onKeyPress)
+                # self.cidKeyR = fig.canvas.mpl_connect('key_release_event',onKeyRelease)
 
                 return zoom
 
@@ -97,6 +112,17 @@ class ZoomPan:
                         self.cur_xlim -= dx
                         self.cur_ylim -= dy
                         ax.set_xlim(self.cur_xlim)
+                        #Get the line
+                        line = ax.lines[0]
+                        data = [line.get_xdata(), line.get_ydata()]
+                        try:
+                            idx_0 = np.where(data[0][:] >= self.cur_xlim[0])[0][0]
+                            idx_1 = np.where(data[0][:] >= self.cur_xlim[1])[0][0]
+                            limits = [data[1][idx_0:idx_1].min()*0.9,
+                                                    data[1][idx_0:idx_1].max()*1.1]
+                            ax.set_ylim(limits)
+                        except IndexError:
+                            pass
                         ax.set_ylim(self.cur_ylim)
 
                         ax.figure.canvas.draw()
