@@ -21,6 +21,7 @@ from datetime import datetime
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+from matplotlib.widgets import Cursor
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from imports.zoom import *
@@ -580,6 +581,9 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
                         x = f['tof_data']['time'][()]
                         y = f['tof_data']['average'][()]
                         self.data.setData(x, y)
+                    else:
+                        logging.info(f'No tof_data dataset')
+                        self.showWarning('Error', f'Unknown file structure')
                 return 1
             except Exception as e:
                 logging.error(f'Could not read the file\n{e}')
@@ -764,6 +768,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
                                                     fontsize = self.fontSize)
                 self.subplot.set_xlabel('m/z', color=self.fg_col,
                                                     fontsize = self.fontSize)
+                self.subplot.format_coord = lambda x, y: f'm/z={x:.2f}'
 
             else:
                 if self.inversed:       #plot the inversed data
@@ -779,6 +784,9 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
                                                       fontsize = self.fontSize)
                 self.subplot.set_xlabel('time of flight', color=self.fg_col,
                                                       fontsize = self.fontSize)
+                self.subplot.format_coord = lambda x, y: f'ToF={x:.2f}'
+            self.cursor = Cursor(self.subplot, horizOn=False, useblit=True,
+                                       color='red', linestyle='--', linewidth=1)
             self.scatter = 0
             self.plotPeaks()
             self.canvas.draw() #draw everything to the screen
@@ -974,7 +982,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
                                                                    event.xdata))
                 parentPosition = self.listWidget.mapToGlobal(QPoint(0, 0))
                 cursor = QCursor()
-                self.listMenu.move(cursor.pos() )
+                self.listMenu.move(cursor.pos())
                 self.listMenu.show()
 
 
