@@ -54,4 +54,10 @@ class Data:
         self.M = self.M[self.zero:]
         logging.info("Calibration applied")
 
-
+    def remove_baseline(self, baseline):
+        if len(baseline) == self.len:
+            self.Y = self.Y + self.baseline - baseline
+            self.baseline = baseline
+            logging.info('Baseline removed')
+        else:
+            logging.warning("Baseline removal: shape mismatch")

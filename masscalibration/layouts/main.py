@@ -227,7 +227,6 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionSaveAs)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
-        self.menuEdit.addAction(self.actionRm_baseline)
         self.menuEdit.addAction(self.actionCrop)
         self.menuEdit.addSeparator()
         self.menuEdit.addAction(self.actionShow_toolbar)
