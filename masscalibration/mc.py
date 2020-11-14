@@ -237,12 +237,15 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
             self.figure.tight_layout()
 
         def rmBaseline(self):
-            baseline = peakutils.baseline(self.data.Y)
-            self.subplot.plot(self.data.X, baseline, 'r--')
+            baseline = peakutils.baseline(self.data.Y[
+                            self.data.limits[0]:self.data.limits[1]])
+            self.subplot.plot(self.data.X[
+                self.data.limits[0]:self.data.limits[1]], baseline, 'r--')
             self.canvas.draw()
             reply = QMessageBox.question(self,
                     'Remove baseline?', 'Do you want to remove the baseline?',
                     QMessageBox.Yes, QMessageBox.No)
+            print(reply == QMessageBox.Yes)
             self.Plot()
 
         def ImportDiag(self):
@@ -684,30 +687,34 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
             else:
                 params = ('\t', False)
 
+            x    = self.data.X[self.data.limits[0]:self.data.limits[1]]
+            mass = self.data.M[self.data.limits[0]:self.data.limits[1]]
+
             if self.inversed:
-                y = self.data.max-self.data.Y[self.data.zero:]
+                y = self.data.max-self.data.Y[
+                        self.data.limits[0]:self.data.limits[1]]
             else:
-                y = self.data.Y[self.data.zero:]
+                y = self.data.Y[self.data.limits[0]:self.data.limits[1]]
 
             if params[1]:
-                np.savetxt(path, np.transpose([self.data.M, y]),
-                                             delimiter=params[0])
+                np.savetxt(path, np.transpose([mass, y]), delimiter=params[0])
             else:
                 header = "Calibrated Mass Spectrum\nCalibration coefficients\n"
                 header += f'{self.coef[0]}, {self.coef[1]}, {self.coef[2]}\n'
                 header += "time\tmass\tsignal"
-                np.savetxt(path, np.transpose([self.data.X[self.data.zero:],
-                    self.data.M, y]), header=header, delimiter=params[0])
+                np.savetxt(path, np.transpose([x, mass, y]), header=header,
+                                                          delimiter=params[0])
             return 1
 
         def save_npz(self, path):
             #Save a file as npz
-            x = self.data.X[self.data.zero:]
-            mass =self.data.M
+            x    = self.data.X[self.data.limits[0]:self.data.limits[1]]
+            mass = self.data.M[self.data.limits[0]:self.data.limits[1]]
             if self.inversed:
-                y = self.data.max-self.data.Y[self.data.zero:]
+                y = self.data.max-self.data.Y[
+                            self.data.limits[0]:self.data.limits[1]]
             else:
-                y = self.data.Y[self.data.zero:]
+                y = self.data.Y[self.data.limits[0]:self.data.limits[1]]
 
             if self.save2col:
                 np.savez_compressed(name, a=np.transpose([mass, y]))
@@ -751,35 +758,24 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
         def Plot(self):
             #Plot the data
             self.subplot.clear()
+            limits = self.data.limits
+            if self.inversed:
+                y = self.data.max = self.data.Y[limits[0]:limits[1]]
+            else:
+                y = self.data.Y[limits[0]:limits[1]]
             if self.Calibration.calibrated:
-                if self.inversed:       #plot the inversed data
-                    self.subplot.plot(self.data.M,
-                                  self.data.max-self.data.Y[self.data.zero:])
-                    self.subplot.set_ylim([1.1*self.data.max,
-                                                self.data.max-self.data.min])
-                else:
-                    self.subplot.plot(self.data.M,
-                                                self.data.Y[self.data.zero:])
-                    self.subplot.set_ylim([self.data.min,
-                                                        1.1 * self.data.max])
+                self.subplot.plot(self.data.M[limits[0]:limits[1]], y)
 
-                self.subplot.set_xlim([self.data.M[0],500])
+                self.subplot.set_xlim([self.data.M[limits[0]], 500])
                 self.subplot.set_ylabel('Intensity', color=self.fg_col,
                                                     fontsize = self.fontSize)
                 self.subplot.set_xlabel('m/z', color=self.fg_col,
                                                     fontsize = self.fontSize)
                 self.subplot.format_coord = lambda x, y: f'm/z={x:.2f}'
-
             else:
-                if self.inversed:       #plot the inversed data
-                    self.subplot.plot(self.data.X, self.data.max-self.data.Y)
-                    self.subplot.set_ylim([1.1*self.data.max,
-                                                self.data.max-self.data.min])
-                else:
-                    self.subplot.plot(self.data.X , self.data.Y)
-                    self.subplot.set_ylim([self.data.min, 1.1 * self.data.max])
-                self.subplot.set_xlim([self.data.X[0],
-                                                 self.data.X[self.data.len-1]])
+                self.subplot.plot(self.data.X[limits[0]:limits[1]], y)
+                self.subplot.set_xlim([self.data.X[limits[0]],
+                                                       self.data.X[limits[1]]])
                 self.subplot.set_ylabel('Intensity', color=self.fg_col,
                                                       fontsize = self.fontSize)
                 self.subplot.set_xlabel('time of flight', color=self.fg_col,
