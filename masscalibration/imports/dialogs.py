@@ -22,19 +22,18 @@ class CropDialog (QtWidgets.QDialog, crop_dialog.Ui_Dialog):
 """Import Dialog"""
 class ImportDialog (QtWidgets.QDialog, dialog.Ui_Dialog):
 
-        def __init__(self, config):
+        def __init__(self, xCol, yCol, nCol, delim, inv):
                 super(ImportDialog, self).__init__()
                 self.setupUi(self)
                 self.lineEdit.setEnabled(False)
                 self.comboBox.activated.connect(self.other)
-                idx = int(config['DEFAULT']['delimiter'])
-                if not idx<=3:
-                        idx =0
-                self.comboBox.setCurrentIndex(idx)
-                self.spinBox.setValue(int(config['DEFAULT']['nCol']))
-                self.spinBox_2.setValue(int(config['DEFAULT']['X']))
-                self.spinBox_3.setValue(int(config['DEFAULT']['Y']))
-                self.checkBox.setChecked(int(config['DEFAULT']['inversed']))
+                if not delim <= 3:
+                        delim = 0
+                self.comboBox.setCurrentIndex(delim)
+                self.spinBox.setValue(nCol)
+                self.spinBox_2.setValue(xCol)
+                self.spinBox_3.setValue(yCol)
+                self.checkBox.setChecked(inv)
 
 
         def other(self):

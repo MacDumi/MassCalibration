@@ -42,9 +42,15 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
             #Logging
             log_level = logging.INFO
             date = datetime.now().date()
-            if not os.path.isdir('logs'):
-                os.mkdir('logs')
-            logging.basicConfig(filename=f'logs/{date}.log',
+            self.config_dir = os.path.join(QStandardPaths.locate(
+                    QStandardPaths.ConfigLocation, '',
+                    QStandardPaths.LocateDirectory), 'masscalibration')
+            log_dir = os.path.join(self.config_dir, 'logs')
+            if not os.path.isdir(self.config_dir):
+                os.mkdir(self.config_dir)
+            if not os.path.isdir(log_dir):
+                os.mkdir(log_dir)
+            logging.basicConfig(filename=f'{log_dir}/{date}.log',
                    format='%(asctime)s-%(name)s-%(levelname)s-%(message)s',
                    level=log_level)
             #toolbar
@@ -114,7 +120,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 
 
             self.scale = 1.5
-            self.config = self.ReadConfig()
+            self.ReadConfig()
             self.setTheme()
             self.listWidget.setContextMenuPolicy(Qt.CustomContextMenu)
             self.tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -134,7 +140,6 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
             self.files=[]
             self.decay=[]
             self.dwTime = -1
-            self.fontSize = int(self.config['DEFAULT']['fontSize'])
             matplotlib.rcParams.update({'font.size': self.fontSize})
 
 
@@ -183,41 +188,45 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 
 
     def ReadConfig(self):
-        self.settings = QSettings("Mass Calibration")
+        self.settings = QSettings("masscalibration/settings")
         self.restoreGeometry(self.settings.value('MainWindow/geometry',
                                                     self.saveGeometry()))
-        self.initialDir = self.settings.value('MainWindow/path', './')
-        self.yCol = self.settings.value('MainWindow/yCol', 2)
-        self.xCol = self.settings.value('MainWindow/xCol', 0)
+        self.initialDir = self.settings.value('Data/path', './')
+        self.yCol  = int(self.settings.value('Data/yCol', 2))
+        self.xCol  = int(self.settings.value('Data/xCol', 0))
+        self.nCol  = int(self.settings.value('Data/nCol', 3))
+        self.delim = int(self.settings.value('Data/delimiter', 0))
+        self.inversed = strtobool(
+                    self.settings.value('Data/inversed', 'false'))
         config = configparser.ConfigParser()
-        path = os.path.dirname(sys.argv[0]) + '/config/config.ini'
-        #TODO rewrite this to use system dirs
-        if sys.platform.startswith('darwin') or os.name == 'posix':
-            res = config.read(os.path.expanduser('~')+'/.config/masscalibration/config.ini')
-            if res == []:
-                res == config.read(path)
-                logging.warning('Configuration : config file not found in the home directory')
+        path = os.path.join(self.config_dir, 'config.ini')
+
+        if not os.path.isfile(path):
+            config.set('DEFAULT', 'header', '20')
+            config.set('DEFAULT', 'dark', '0')
+            config.set('DEFAULT', 'fontSize', '14')
+            with open(path, 'w') as f:
+                config.write(f)
         else:
             res = config.read(path)
 
-        if res!=[]:
+        try:
             self.h=int(config['DEFAULT']['header'])
-            self.inversed=bool(int(config['DEFAULT']['inversed']))
+            self.fontSize = int(config['DEFAULT']['fontSize'])
             if bool(int(config['DEFAULT']['dark'])):
                 self.fg_col = 'white'
                 self.bg_col = 'black'
             else:
                 self.fg_col = 'black'
                 self.bg_col = 'white'
-        else:
-            self.showWarning('Error', 'Could not find the configuration file.\nLoading defaults')
-            logging.warning('Configuration : Could not find the configuration file')
-            self.h=10
-            self.initialDir=os.path.dirname(sys.argv[0])
-            self.inversed=False
+        except Exception as e:
+            self.showWarning('Error',
+                    f'Error while reading the config file\n{e}')
+            logging.warning(f'Config file corrupted {e}')
+            self.h = 20
+            self.fontSize = 14
             self.fg_col = 'white'
             self.bg_col = 'black'
-        return config
 
     def ReloadConfig(self):
         self.config = self.ReadConfig()
@@ -232,7 +241,8 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
         self.figure.tight_layout()
 
     def ImportDiag(self):
-        dialog = ImportDialog(self.config)
+        dialog = ImportDialog(self.xCol, self.yCol,
+                                self.nCol, self.delim, self.inversed)
         result = dialog.exec_()
         param = 0
         param = dialog.getData()
@@ -967,9 +977,12 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 
     def closeEvent(self, event):
         self.settings.setValue('MainWindow/geometry', self.saveGeometry())
-        self.settings.setValue('MainWindow/path', self.initialDir)
-        self.settings.setValue('MainWindow/yCol', self.yCol)
-        self.settings.setValue('MainWindow/xCol', self.xCol)
+        self.settings.setValue('Data/path', self.initialDir)
+        self.settings.setValue('Data/yCol', self.yCol)
+        self.settings.setValue('Data/xCol', self.xCol)
+        self.settings.setValue('Data/nCol', self.nCol)
+        self.settings.setValue('Data/delimiter', self.delim)
+        self.settings.setValue('Data/inversed', self.inversed)
         event.accept()
 
 
