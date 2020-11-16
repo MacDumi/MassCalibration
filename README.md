@@ -11,14 +11,14 @@ To install all the required packages run the following command:
 
     $ python mc.py
 
-To open a new file choose File->New (**C-n**)
-To Save the mass calibration choose **File->Save** (ASCII), to save as *npz* choose **File->Save as npz**.
+To open a new file choose File->New (**C-o**)
+To Save the mass calibration to the same file choose **File->Save** and choose **File->Save as** to export to a different file.
 The toolbar can be either displayed or hidden (**Edit->Toolbar**).
 
 ### Configuration:
 
-The configuration file is located at *./config/config.ini* and is parsed at startup. 
-Edit it to account for your preferences (default delimiter, number of columns to import, font size and theme).
+The configuration file is located at *~/.config/masscalibration/config.ini* and is parsed at startup. 
+Edit it to account for your preferences (header size, font size and theme).
 To reload the configuration file choose **Edit->Reload Config**.
 
 ### Calibration:
@@ -42,14 +42,9 @@ If a peaklist is present when a new spectrum is loaded, the software will attemp
 
 ### Zoom:
 
-Zoom in and out with the scroll wheel of the mouse. To zoom only on the X axis hold down the Control key (**C**), for the Y axis - Shift key (**S**). The plot can be moved with the mouse while holding the middle button. To activate the zooming of single axis, the focus should be on the plot.
+Zoom in and out with the scroll wheel of the mouse. The plot can be moved with the mouse while holding the middle button.
 
 ### Crop:
 
 To crop the spectrum use the **Edit->Crop** option or the shortcut (**C-S-c**)
-
-### Baseline removal:
-
-To remove the baseline select **Edit->Remove Baseline** or the shortcut (**C-S-b**). A red dashed line, corresponding to the baseline, will be displayed prior to the removal.
-
 

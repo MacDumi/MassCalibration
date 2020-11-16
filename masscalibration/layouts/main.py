@@ -298,3 +298,4 @@ class Ui_MainWindow(object):
         self.actionCalibrate_formula.setText(_translate("MainWindow", "Calibrate (&formula)"))
         self.actionShow_toolbar.setText(_translate("MainWindow", "&Show toolbar"))
         self.actionSaveAs.setText(_translate("MainWindow", "Save As"))
+        self.actionSaveAs.setShortcut(_translate("MainWindow", "Ctrl+S"))

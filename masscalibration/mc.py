@@ -31,6 +31,7 @@ from imports.data import *
 from imports.calibration import *
 from imports.readTrc import readTrc
 
+VERSION = '2.5'
 
 class MassCalibration (QMainWindow, main.Ui_MainWindow):
 
@@ -229,7 +230,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
             self.bg_col = 'black'
 
     def ReloadConfig(self):
-        self.config = self.ReadConfig()
+        self.ReadConfig()
         self.gridLayout_3.removeWidget(self.canvas)
         self.gridLayout_4.removeWidget(self.canvas_1)
         self.gridLayout_3.removeWidget(self.toolbar)
@@ -238,7 +239,6 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
         self.Plot()
         self.lbStatus.setText("Configuration reloaded")
         logging.info("Configuration : configuration reloaded")
-        self.figure.tight_layout()
 
     def ImportDiag(self):
         dialog = ImportDialog(self.xCol, self.yCol,
@@ -539,7 +539,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
             #If the file was loaded
             self.fname = fname
             self.setWindowTitle(os.path.basename(fname) +
-                                  ' - Mass Spectrum Calibration - v2.5')
+                                 f' - Mass Spectrum Calibration - v{VERSION}')
             self.lastDrawn = 0
             self.Calibration.calibrated = False
             if len(self.Calibration.peaks['mass']):
@@ -734,7 +734,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
         #information pop-up message
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)
-        msg.setText("Version v2.5 Beta\nMade by MacDumi\nLille, 2020")
+        msg.setText(f"Version v{VERSION} Beta\nMade by MacDumi\nLille, 2020")
         msg.setWindowTitle("About")
         msg.setStandardButtons(QMessageBox.Ok)
         msg.exec_()
@@ -750,36 +750,38 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
 
     def Plot(self):
         #Plot the data
-        self.subplot.clear()
-        limits = self.data.limits
-        if self.inversed:
-            y = self.data.max = self.data.Y[limits[0]:limits[1]]
-        else:
-            y = self.data.Y[limits[0]:limits[1]]
-        if self.Calibration.calibrated:
-            self.subplot.plot(self.data.M[limits[0]:limits[1]], y)
+        try:
+            self.subplot.clear()
+            limits = self.data.limits
+            if self.inversed:
+                y = self.data.max = self.data.Y[limits[0]:limits[1]]
+            else:
+                y = self.data.Y[limits[0]:limits[1]]
+            if self.Calibration.calibrated:
+                self.subplot.plot(self.data.M[limits[0]:limits[1]], y)
 
-            self.subplot.set_xlim([self.data.M[limits[0]], 500])
-            self.subplot.set_ylabel('Intensity', color=self.fg_col,
-                                                fontsize = self.fontSize)
-            self.subplot.set_xlabel('m/z', color=self.fg_col,
-                                                fontsize = self.fontSize)
-            self.subplot.format_coord = lambda x, y: f'm/z={x:.2f}'
-        else:
-            self.subplot.plot(self.data.X[limits[0]:limits[1]], y)
-            self.subplot.set_xlim([self.data.X[limits[0]],
-                                                   self.data.X[limits[1]]])
-            self.subplot.set_ylabel('Intensity', color=self.fg_col,
-                                                  fontsize = self.fontSize)
-            self.subplot.set_xlabel('time of flight', color=self.fg_col,
-                                                  fontsize = self.fontSize)
-            self.subplot.format_coord = lambda x, y: f'ToF={x:.2f}'
-        self.cursor = Cursor(self.subplot, horizOn=False, useblit=True,
-                                   color='red', linestyle='--', linewidth=1)
-        self.scatter = 0
-        self.plotPeaks()
-        self.canvas.draw() #draw everything to the screen
-        self.figure.tight_layout()
+                self.subplot.set_xlim([self.data.M[limits[0]], 500])
+                self.subplot.set_ylabel('Intensity', color=self.fg_col,
+                                                    fontsize = self.fontSize)
+                self.subplot.set_xlabel('m/z', color=self.fg_col,
+                                                    fontsize = self.fontSize)
+                self.subplot.format_coord = lambda x, y: f'm/z={x:.2f}'
+            else:
+                self.subplot.plot(self.data.X[limits[0]:limits[1]], y)
+                self.subplot.set_xlim([self.data.X[limits[0]],
+                                                      self.data.X[limits[1]]])
+                self.subplot.set_ylabel('Intensity', color=self.fg_col,
+                                                     fontsize = self.fontSize)
+                self.subplot.set_xlabel('time of flight', color=self.fg_col,
+                                                     fontsize = self.fontSize)
+                self.subplot.format_coord = lambda x, y: f'ToF={x:.2f}'
+            self.cursor = Cursor(self.subplot, horizOn=False, useblit=True,
+                                     color='red', linestyle='--', linewidth=1)
+            self.scatter = 0
+            self.plotPeaks()
+            self.canvas.draw() #draw everything to the screen
+        except AttributeError:
+            logging.warning('no data to be plotted')
 
 
     def plotPeaks(self):
