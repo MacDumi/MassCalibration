@@ -512,7 +512,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
                 name = name+'.mz'
             coefs = self.Calibration.coef
             text = "Calibration coefficients\nhighest to lowest power\n"
-            test += f'{coefs[0]:.6f}, {coefs[1]:.6f}, {coefs[2]:.6f}\n\n'
+            text += f'{coefs[0]:.6f}, {coefs[1]:.6f}, {coefs[2]:.6f}\n\n'
             text += "Time, Intensity, Mass, Formula, Error (ppm)"
             np.savetxt(name, np.column_stack((self.Calibration.peaks.values,
                                     self.Calibration.error)), header = text,
