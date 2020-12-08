@@ -7,6 +7,11 @@ To install all the required packages run the following command:
 
     $ pip install -r requirements.txt
 
+## Installation (Linux)
+To install the application and create a desktop entry run the following command:
+
+    # ./install_script.sh
+
 ## Usage:
 
     $ python mc.py

@@ -5,9 +5,6 @@ __pycache__/
 *.py[cod]
 #design files
 *.ui
-# Installation files
-install_script.sh
-MassCalibration.desktop
 # Misc
 cde/
 cde*
