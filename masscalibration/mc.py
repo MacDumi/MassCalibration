@@ -127,7 +127,8 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
             self.tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)
             self.tableWidget.customContextMenuRequested.connect(
                                             self.tableItemRightClicked)
-            self.listWidget.itemClicked.connect(self.listItemRightClicked)
+            self.listWidget.customContextMenuRequested.connect(
+                                             self.listItemRightClicked)
             self.tableWidget.cellChanged.connect(self.cellchanged)
             self.fname = ''
             self.lastDrawn=0
@@ -186,7 +187,6 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
         self.zp = ZoomPan()
         figZoom = self.zp.zoom_factory(self.subplot, base_scale=self.scale)
         figPan = self.zp.pan_factory(self.subplot)
-
 
     def ReadConfig(self):
         self.settings = QSettings("masscalibration/settings")
@@ -266,7 +266,9 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
         files, _filter = QFileDialog.getOpenFileNames(self,
                                         'Load files', self.initialDir,
                             "Binnary files (*.trc);; All files (*.*)")
-        self.initialDir=ntpath.dirname(files[0])
+        if not files:
+            return
+        self.initialDir = ntpath.dirname(files[0])
         self.files = np.sort(np.append(self.files, files))
         self.listWidget.clear()
         for file_ in self.files:
@@ -286,7 +288,6 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
         parentPosition = self.listWidget.mapToGlobal(QPoint(0, 0))
         self.listMenu.move(parentPosition)
         self.listMenu.show()
-
 
     def menuRemoveClicked(self):
         currentItemName=str(self.listWidget.currentItem().text() )
@@ -386,7 +387,6 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
         self.figure_1.savefig(self.initialDir+'/decay_fig.png')
         logging.info('figure saved')
         self.canvas_1.draw() #draw everything to the screen
-
 
     def Crop(self):
         #Crop spectrum
@@ -783,7 +783,6 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
         except AttributeError:
             logging.warning('no data to be plotted')
 
-
     def plotPeaks(self):
         self.removeScatter()
         if (self.Calibration.peaks['mass'].shape):
@@ -918,7 +917,6 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
                 self.tableWidget.clearSelection()
         self.plotPeaks()
 
-
     def findPeak(self, data, x, cursor=True, Gfit=False, **kwargs):
         self.min = data.min
         self.max = data.max
@@ -974,7 +972,6 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
             cursor = QCursor()
             self.listMenu.move(cursor.pos())
             self.listMenu.show()
-
 
     def closeEvent(self, event):
         self.settings.setValue('MainWindow/geometry', self.saveGeometry())
