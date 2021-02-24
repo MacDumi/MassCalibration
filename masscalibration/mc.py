@@ -452,6 +452,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
         if not fname:
             return
         else:
+            self.clearTable()
             try:
                 with open(fname) as f:
                     for i, line in enumerate(f):
@@ -512,7 +513,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
                 name = name+'.mz'
             coefs = self.Calibration.coef
             text = "Calibration coefficients\nhighest to lowest power\n"
-            text += f'{coefs[0]:.6f}, {coefs[1]:.6f}, {coefs[2]:.6f}\n\n'
+            text += f'{coefs[0]:e}, {coefs[1]:e}, {coefs[2]:e}\n\n'
             text += "Time, Intensity, Mass, Formula, Error (ppm)"
             np.savetxt(name, np.column_stack((self.Calibration.peaks.values,
                                     self.Calibration.error)), header = text,
@@ -765,7 +766,7 @@ class MassCalibration (QMainWindow, main.Ui_MainWindow):
                                                     fontsize = self.fontSize)
                 self.subplot.set_xlabel('m/z', color=self.fg_col,
                                                     fontsize = self.fontSize)
-                self.subplot.format_coord = lambda x, y: f'm/z={x:.2f}'
+                self.subplot.format_coord = lambda x, y: f'm/z={x:.3f}'
             else:
                 self.subplot.plot(self.data.X[limits[0]:limits[1]], y)
                 self.subplot.set_xlim([self.data.X[limits[0]],
